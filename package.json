@@ -40,5 +40,5 @@
     "@types/react-helmet": "^5.0.15",
     "@types/styled-components": "^5.0.1",
     "prettier": "^1.19.1"
-  },
+  }
 }
