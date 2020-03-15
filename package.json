@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "author": "Eesa1980 <Eesa1980@gmail.com>",
   "dependencies": {
+    "@material-ui/core": "^4.9.5",
     "@material-ui/styles": "^4.9.0",
     "@types/node": "^13.9.1",
     "@types/react": "16.9.23",
@@ -34,6 +35,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
+    "@types/react-helmet": "^5.0.15",
+    "@types/styled-components": "^5.0.1",
     "prettier": "^1.19.1"
   },
   "contributors": [
