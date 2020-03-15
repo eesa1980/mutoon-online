@@ -3,9 +3,7 @@
   "description": "Mutoon Online Memorisation Tool",
   "version": "1.0.0",
   "author": "Eesa1980 <Eesa1980@gmail.com>",
-  "repository": {
-    
-  },
+  "repository": "https://github.com/eesa1980/mutoon-online",
   "dependencies": {
     "@material-ui/core": "^4.9.5",
     "@material-ui/styles": "^4.9.0",
