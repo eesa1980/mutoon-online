@@ -6,12 +6,21 @@ module.exports = {
     {
       resolve: `gatsby-plugin-material-ui`,
       options: {
+        webFontsConfig: {
+          fonts: {
+            google: [
+              {
+                family: `Roboto`,
+                variants: [`300`, `400`, `500`]
+              }
+            ]
+          }
+        },
         stylesProvider: {
           injectFirst: true
         }
       }
     },
-    `gatsby-plugin-styled-components`,
     `gatsby-plugin-react-helmet`,
     // Add typescript stack into webpack
     `gatsby-plugin-typescript`,

@@ -1,5 +1,10 @@
+import { Container, Typography } from "@material-ui/core";
+import Button from "@material-ui/core/Button";
 import Link from "gatsby-link";
 import * as React from "react";
+import ControlledOpenSelect from "../components/Select";
+import { books } from "../dummy/";
+import DefaultLayout from "../layouts/index";
 
 // Please note that you can use https://github.com/dotansimha/graphql-code-generator
 // to generate all types from graphQL schema
@@ -11,26 +16,58 @@ interface IndexPageProps {
       };
     };
   };
+  theme: any;
 }
 
-export default class extends React.Component<IndexPageProps, {}> {
-  constructor(props: IndexPageProps, context: any) {
-    super(props, context);
-  }
-  public render() {
-    return (
-      <div>
-        <h1>Hi people</h1>
-        <p>
-          Welcome to your new{" "}
-          <strong>{this.props.data.site.siteMetadata.title}</strong> site.
-        </p>
-        <p>Now go build something great.</p>
-        <Link to="/page-2/">Go to page 2</Link>
-      </div>
-    );
-  }
-}
+const Index: React.FC<IndexPageProps> = props => {
+  const [book, setBook] = React.useState<string>("");
+
+  const selectedBook = React.useMemo(
+    () => books.find(item => item._id === book),
+    [book]
+  );
+
+  return (
+    <DefaultLayout>
+      <Container maxWidth="sm">
+        <Typography variant="h4" component="h1">
+          <strong>{props.data.site.siteMetadata.title}</strong>
+        </Typography>
+
+        <Typography component="p">Select a book from below</Typography>
+
+        <ControlledOpenSelect
+          title={"Book"}
+          handleChange={setBook}
+          values={books.map(item => ({ value: item._id, text: item.title }))}
+        />
+
+        <br />
+
+        <Typography component="p">
+          {selectedBook && selectedBook.title}
+        </Typography>
+
+        <br />
+
+        {selectedBook && (
+          <Typography component="p">
+            <strong>
+              <Button
+                to="/page-2/"
+                variant="contained"
+                color="primary"
+                component={Link}
+              >
+                Start
+              </Button>
+            </strong>
+          </Typography>
+        )}
+      </Container>
+    </DefaultLayout>
+  );
+};
 
 export const pageQuery = graphql`
   query IndexQuery {
@@ -41,3 +78,5 @@ export const pageQuery = graphql`
     }
   }
 `;
+
+export default Index;
