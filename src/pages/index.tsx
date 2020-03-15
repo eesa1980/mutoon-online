@@ -2,9 +2,10 @@ import { Container, Typography } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import Link from "gatsby-link";
 import * as React from "react";
-import ControlledOpenSelect from "../components/Select";
-import { books } from "../dummy/";
+import Select from "../components/Select";
+import { books as booksDummy, categories as categoriesDummy } from "../dummy/";
 import DefaultLayout from "../layouts/index";
+import { Book, Category } from "../model";
 
 // Please note that you can use https://github.com/dotansimha/graphql-code-generator
 // to generate all types from graphQL schema
@@ -20,11 +21,17 @@ interface IndexPageProps {
 }
 
 const Index: React.FC<IndexPageProps> = props => {
-  const [book, setBook] = React.useState<string>("");
+  const [categoryVal, setCategoryVal] = React.useState<string>("");
+  const [bookVal, setBookVal] = React.useState<string>("");
+
+  const selectedCategory = React.useMemo(
+    () => categoriesDummy.find(item => item._id === categoryVal),
+    [categoryVal, bookVal]
+  );
 
   const selectedBook = React.useMemo(
-    () => books.find(item => item._id === book),
-    [book]
+    () => booksDummy.find(item => item._id === bookVal),
+    [categoryVal, bookVal]
   );
 
   return (
@@ -36,17 +43,38 @@ const Index: React.FC<IndexPageProps> = props => {
 
         <Typography component="p">Select a book from below</Typography>
 
-        <ControlledOpenSelect
-          title={"Book"}
-          handleChange={setBook}
-          values={books.map(item => ({ value: item._id, text: item.title }))}
+        <Select
+          title={"Category"}
+          handleChange={(value: string) => {
+            setCategoryVal(value);
+            setBookVal("");
+          }}
+          values={categoriesDummy.map((item: Category) => ({
+            value: item._id,
+            text: item.name
+          }))}
         />
 
-        <br />
+        {selectedCategory && (
+          <>
+            <Select
+              title={"Book"}
+              handleChange={setBookVal}
+              values={booksDummy
+                .filter((item: Book) => item.category_id === categoryVal)
+                .map((item: Book) => ({
+                  value: item._id,
+                  text: item.name
+                }))}
+            />
 
-        <Typography component="p">
-          {selectedBook && selectedBook.title}
-        </Typography>
+            <br />
+
+            <Typography component="p">
+              {selectedBook && selectedBook.name}
+            </Typography>
+          </>
+        )}
 
         <br />
 
@@ -54,7 +82,7 @@ const Index: React.FC<IndexPageProps> = props => {
           <Typography component="p">
             <strong>
               <Button
-                to="/page-2/"
+                to={`/books/${selectedBook.slug}/`}
                 variant="contained"
                 color="primary"
                 component={Link}

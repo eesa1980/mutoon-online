@@ -1,13 +1,16 @@
 import { FormControl, InputLabel, MenuItem, Select } from "@material-ui/core";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import startCase from "lodash-es/startCase";
 import * as React from "react";
+
+interface Value {
+  text: string;
+  value: string;
+}
 
 interface PropTypes {
   title: string;
-  values: {
-    text: string;
-    value: string;
-  }[];
+  values: Value[];
   handleChange: any;
 }
 
@@ -20,7 +23,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const ControlledOpenSelect: React.FC<PropTypes> = props => {
+const SelectComponent: React.FC<PropTypes> = props => {
   const classes = useStyles();
 
   const [value, setValue] = React.useState<string | number>("");
@@ -43,9 +46,7 @@ const ControlledOpenSelect: React.FC<PropTypes> = props => {
   return (
     <div>
       <FormControl className={classes.formControl}>
-        <InputLabel id="open-select-label">
-          {props.title}
-        </InputLabel>
+        <InputLabel id="open-select-label">{props.title}</InputLabel>
         <Select
           labelId="open-select-label"
           id="open-select"
@@ -58,17 +59,15 @@ const ControlledOpenSelect: React.FC<PropTypes> = props => {
           <MenuItem value="">
             <em>- Select one -</em>
           </MenuItem>
-          {props.values.map(
-            (item: { value: string; text: string }, key: number) => (
-              <MenuItem key={key} value={item.value}>
-                {item.text}
-              </MenuItem>
-            )
-          )}
+          {props.values.map((item: Value, key: number) => (
+            <MenuItem key={key} value={item.value}>
+              {startCase(item.text)}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
     </div>
   );
 };
 
-export default ControlledOpenSelect;
+export default SelectComponent;

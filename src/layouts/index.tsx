@@ -1,8 +1,13 @@
-import { Typography } from '@material-ui/core';
+import { Typography } from "@material-ui/core";
 import blueGrey from "@material-ui/core/colors/blueGrey";
 import teal from "@material-ui/core/colors/teal";
 import NoSsr from "@material-ui/core/NoSsr";
-import { createMuiTheme, responsiveFontSizes, Theme, ThemeProvider } from "@material-ui/core/styles";
+import {
+  createMuiTheme,
+  responsiveFontSizes,
+  Theme,
+  ThemeProvider
+} from "@material-ui/core/styles";
 import Link from "gatsby-link";
 import startCase from "lodash-es/startCase";
 import * as React from "react";
@@ -24,12 +29,8 @@ theme = responsiveFontSizes(theme);
 const Header = () => (
   <div>
     <Typography variant="h4" component="h1">
-        <Link
-          to="/"
-        >
-          HEADER
-        </Link>
-      </Typography>
+      <Link to="/">HEADER</Link>
+    </Typography>
   </div>
 );
 
