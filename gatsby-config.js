@@ -36,10 +36,13 @@ module.exports = {
       }
     },
     {
-      resolve: `gatsby-plugin-page-creator`,
+      resolve: `gatsby-source-filesystem`,
       options: {
-        path: `${__dirname}/src/books`
+        name: `books`,
+        path: `${__dirname}/src/pages/books/`
       }
-    }
+    },
+    `gatsby-transformer-remark`,
+    `gatsby-plugin-mdx`
   ]
 };
