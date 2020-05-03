@@ -1,20 +1,92 @@
-// const { createFilePath } = require("gatsby-source-filesystem");
-// exports.onCreateNode = ({ node, actions, getNode }) => {
-//   const { createNodeField } = actions;
-//   // you only want to operate on `Mdx` nodes. If you had content from a
-//   // remote CMS you could also check to see if the parent node was a
-//   // `File` node here
-//   if (node.internal.type === "Mdx") {
-//     const value = createFilePath({ node, getNode });
-//     createNodeField({
-//       // Name of the field you are adding
-//       name: "slug",
-//       // Individual MDX node
-//       node,
-//       // Generated value based on filepath with "blog" prefix. you
-//       // don't need a separating "/" before the value because
-//       // createFilePath returns a path with the leading "/".
-//       value: `/books/${value}`
-//     });
-//   }
-// };
+const { createFilePath } = require("gatsby-source-filesystem");
+const path = require(`path`);
+const orderBy = require("lodash/orderBy");
+
+exports.createSchemaCustomization = ({ actions }) => {
+  const { createTypes } = actions;
+  const typeDefs = `
+    type Categories @Infer {
+      name: String
+    }
+
+
+    type wordpress__wp_media implements Node @Infer {
+      url: String
+      alt: String
+      media_type: String
+      alt_text: String
+      title: String
+    }
+  `;
+
+  createTypes(typeDefs);
+};
+
+exports.createPages = async ({ graphql, actions }) => {
+  // **Note:** The graphql function call returns a Promise
+  // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise for more info
+  const { createPage } = actions;
+
+  const categories = await graphql(`
+    query {
+      allWordpressCategory {
+        edges {
+          node {
+            name
+            wordpress_parent
+            slug
+            wordpress_id
+          }
+        }
+      }
+    }
+  `);
+
+  const books = await graphql(`
+    query {
+      allWordpressWpBooks {
+        edges {
+          node {
+            wordpress_id
+            acf {
+              arabic
+              english
+              book_title
+              cover_image {
+                alt
+                url
+              }
+              page_number
+            }
+            slug
+            categories {
+              slug
+            }
+          }
+        }
+      }
+    }
+  `);
+
+  createPage({
+    path: "categories",
+    component: path.resolve(`./src/templates/Categories.tsx`),
+    context: {
+      categories: categories.data.allWordpressCategory.edges,
+    },
+  });
+
+  categories.data.allWordpressCategory.edges.forEach((edge) => {
+    const book = books.data.allWordpressWpBooks.edges
+      .filter((bookEdge) => bookEdge.node.categories[0].slug === edge.node.slug)
+      .map((item) => item.node);
+
+    const ordered = orderBy(book, "acf.page_number", "asc");
+
+    createPage({
+      path: edge.node.slug,
+      component: path.resolve(`./src/templates/Book.tsx`),
+      context: { title: edge.node.name, book: ordered },
+    });
+  });
+};
