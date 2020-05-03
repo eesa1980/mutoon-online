@@ -132,7 +132,6 @@ module.exports = {
     },
     `gatsby-plugin-sharp`,
     `gatsby-transformer-sharp`,
-    `gatsby-plugin-generate-types`,
     `gatsby-plugin-styled-components`,
     `gatsby-plugin-react-helmet`,
     // Add typescript stack into webpack
