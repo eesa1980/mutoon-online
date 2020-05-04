@@ -1,14 +1,4 @@
-
-
-export interface Categories {
-  data: Data;
-}
-
-interface Data {
-  allWordpressCategory: AllWordpressCategory;
-}
-
-interface AllWordpressCategory {
+export interface AllWordpressCategory {
   edges: CategoryEdge[];
 }
 

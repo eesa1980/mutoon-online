@@ -1,12 +1,4 @@
-export interface Book {
-  data: Data;
-}
-
-interface Data {
-  allWordpressWpBooks: AllWordpressWpBooks;
-}
-
-interface AllWordpressWpBooks {
+export interface AllWordpressWpBooks {
   edges: BookEdge[];
 }
 
