@@ -3,14 +3,14 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import startCase from "lodash-es/startCase";
 import * as React from "react";
 
-interface Value {
+export interface SelectOption {
   text: string;
   value: string;
 }
 
 interface PropTypes {
   title: string;
-  values: Value[];
+  values: SelectOption[];
   handleChange?: any;
   id: string;
   defaultValue?: string;
@@ -65,7 +65,7 @@ const SelectComponent: React.FC<PropTypes> = (props) => {
           </MenuItem>
         )}
 
-        {props.values?.map((item: Value, key: number) => (
+        {props.values?.map((item: SelectOption, key: number) => (
           <MenuItem key={key} value={item.value}>
             {startCase(item.text)}
           </MenuItem>

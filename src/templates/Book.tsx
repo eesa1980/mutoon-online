@@ -9,11 +9,11 @@ import { Page } from "../model";
 import { Hr } from "../styled/Hr";
 
 interface IBookTemplate {
-  [key: string]: any;
   pageContext: {
     title: string;
     book: Page[];
   };
+  [key: string]: any;
 }
 
 const Content = styled(Paper)`
