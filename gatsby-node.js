@@ -68,14 +68,6 @@ exports.createPages = async ({ graphql, actions }) => {
     }
   `);
 
-  createPage({
-    path: "categories",
-    component: path.resolve(`./src/templates/Categories.tsx`),
-    context: {
-      categories: categories.data.allWordpressCategory.edges,
-    },
-  });
-
   categories.data.allWordpressCategory.edges.forEach((edge) => {
     const book = books.data.allWordpressWpBooks.edges
       .filter((bookEdge) => bookEdge.node.categories[0].slug === edge.node.slug)
