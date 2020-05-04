@@ -4,6 +4,7 @@ import { navigate } from "gatsby";
 import Img from "gatsby-image";
 import startCase from "lodash-es/startCase";
 import * as React from "react";
+import LazyLoad from "react-lazyload";
 import styled from "styled-components";
 import {
   AllWordpressCategory,
@@ -91,7 +92,7 @@ const Categories: React.FC<CategoriesProps> = ({ data }) => {
         text: edge.node.name,
       }));
 
-      result.unshift({
+    result.unshift({
       value: "all",
       text: "All",
     });
@@ -146,18 +147,22 @@ const Categories: React.FC<CategoriesProps> = ({ data }) => {
 
       <Buttons>
         {books.map((item: SelectOption, i: number) => (
-          <ButtonBaseStyled
-            focusRipple
-            onClick={() => navigate(item.value)}
-            key={item.value}
-            color={"primary"}
-          >
-            {imageUrl(item.text) && <ImageStyled fluid={imageUrl(item.text)} />}
-            <TextStyled color="textPrimary" variant="h6">
-              {startCase(item.text)}
-              <HrStyled color={teal[300]} />
-            </TextStyled>
-          </ButtonBaseStyled>
+          <LazyLoad height={200}>
+            <ButtonBaseStyled
+              focusRipple
+              onClick={() => navigate(item.value)}
+              key={item.value}
+              color={"primary"}
+            >
+              {imageUrl(item.text) && (
+                <ImageStyled fluid={imageUrl(item.text)} />
+              )}
+              <TextStyled color="textPrimary" variant="h6">
+                {startCase(item.text)}
+                <HrStyled color={teal[300]} />
+              </TextStyled>
+            </ButtonBaseStyled>
+          </LazyLoad>
         ))}
       </Buttons>
     </>
