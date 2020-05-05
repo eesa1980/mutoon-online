@@ -1,5 +1,6 @@
 import { Container, Paper, Typography } from "@material-ui/core";
 import teal from "@material-ui/core/colors/teal";
+import { withTheme } from "@material-ui/core/styles";
 import parse from "html-react-parser";
 import * as React from "react";
 import { Fragment } from "react";
@@ -17,19 +18,24 @@ interface IBookTemplate {
   [key: string]: any;
 }
 
-const Content = styled(Paper)`
-  padding: 20px 40px;
-  margin-block-start: 1rem;
-  margin-block-end: 1rem;
+const PaperStyled = withTheme(styled(Paper)`
+  display: block;
+  margin: ${({ theme }) => theme.spacing(2)}px 0;
+`);
+
+const Text = withTheme(styled("div")`
+  margin: 0;
+  padding: ${({ theme }) => theme.spacing(2)}px
+    ${({ theme }) => theme.spacing(4)}px;
 
   p {
     display: block;
-    margin-block-start: 1rem;
-    margin-block-end: 1rem;
+    margin-block-start: ${({ theme }) => theme.spacing(2)}px;
+    margin-block-end: ${({ theme }) => theme.spacing(2)}px;
     margin-inline-start: 0px;
     margin-inline-end: 0px;
   }
-`;
+`);
 
 const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
   return (
@@ -38,23 +44,25 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
         {pageContext?.book.map((page, i) => (
           <Fragment key={i}>
             <LazyLoad height={200}>
-              <Content elevation={1} variant="outlined">
-                {i === 0 && (
-                  <>
-                    <Typography variant="h4" component="h1" align="center">
-                      <p>{pageContext.title}</p>
-                    </Typography>
-                    <Hr color={teal[300]} />
-                  </>
-                )}
-                <Typography component="span" variant={"caption"}>
-                  {parse(page?.acf?.arabic)}
-                </Typography>
-                <Hr color={teal[300]} />
-                <Typography component="span">
-                  {parse(page?.acf?.english)}
-                </Typography>
-              </Content>
+              <PaperStyled elevation={1} variant="outlined">
+                <Text>
+                  {i === 0 && (
+                    <>
+                      <Typography variant="h4" component="h1" align="center">
+                        <p>{pageContext.title}</p>
+                      </Typography>
+                      <Hr color={teal[300]} />
+                    </>
+                  )}
+                  <Typography component="span" variant={"caption"}>
+                    {parse(page?.acf?.arabic)}
+                  </Typography>
+                  <Hr color={teal[300]} />
+                  <Typography component="span">
+                    {parse(page?.acf?.english)}
+                  </Typography>
+                </Text>
+              </PaperStyled>
             </LazyLoad>
           </Fragment>
         ))}

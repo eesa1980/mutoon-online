@@ -23,7 +23,6 @@ interface DefaultLayoutProps extends React.HTMLProps<HTMLDivElement> {
 const Background = styled.div`
   background: ${({ theme }: any) => theme.palette.background.default};
   min-height: 100vh;
-  padding: 5px 0;
 `;
 
 const DefaultLayout: React.FC<DefaultLayoutProps> = (props) => {
@@ -38,10 +37,10 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = (props) => {
           type: "dark",
         },
         typography: {
-          fontFamily: "Jost",
+          fontFamily: "Roboto",
 
           caption: {
-            fontFamily: "Scheherazade",
+            fontFamily: "Lateef",
             fontSize: 35,
             direction: "rtl",
             fontWeight: 100,
@@ -64,11 +63,7 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = (props) => {
           ]}
         >
           <link
-            href="https://fonts.googleapis.com/css?family=Scheherazade&display=swap&subset=arabic"
-            rel="stylesheet"
-          />
-          <link
-            href="https://fonts.googleapis.com/css?family=Jost:400,500,700&display=swap"
+            href="https://fonts.googleapis.com/css?family=Lateef|Roboto:400,700&display=swap&subset=arabic"
             rel="stylesheet"
           />
         </Helmet>
