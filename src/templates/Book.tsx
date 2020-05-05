@@ -28,6 +28,10 @@ const Text = withTheme(styled("div")`
   padding: ${({ theme }) => theme.spacing(2)}px
     ${({ theme }) => theme.spacing(4)}px;
 
+  &.title {
+    text-align: center;
+  }
+
   p {
     text-align: inherit;
     display: block;
@@ -46,19 +50,18 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
           <Fragment key={i}>
             <LazyLoad height={200}>
               <PaperStyled elevation={1} variant="outlined">
-                <Text>
+                <Text className={i === 0 && "title"}>
                   {i === 0 && (
                     <>
                       <Typography variant="h4" component="h1" align="center">
                         <p>{pageContext.title}</p>
                       </Typography>
-                      <Hr />
                     </>
                   )}
                   <Typography component="span" variant={"caption"}>
                     {parse(page?.acf?.arabic)}
                   </Typography>
-                  <Hr />
+                  {i > 0 && <Hr />}
                   <Typography component="span">
                     {parse(page?.acf?.english)}
                   </Typography>
