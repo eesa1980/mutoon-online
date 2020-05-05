@@ -1,4 +1,4 @@
-import { ButtonBase, Paper, Typography } from "@material-ui/core";
+import { ButtonBase, Paper, Typography, withTheme } from "@material-ui/core";
 import teal from "@material-ui/core/colors/teal";
 import { navigate } from "gatsby";
 import Img from "gatsby-image";
@@ -41,7 +41,7 @@ const ButtonBaseStyled = styled(ButtonBase)`
   height: 200px;
 
   &:hover {
-    hr {
+    .hr {
       width: 90px;
       padding: 0;
     }
@@ -69,9 +69,9 @@ const TextStyled = styled(Typography)`
   padding: 20px;
 `;
 
-const HrStyled = styled(Hr)`
+const HrStyled = withTheme(styled(Hr)`
   margin-bottom: -20px;
-`;
+`);
 
 const Categories: React.FC<CategoriesProps> = ({ data }) => {
   const [category, setCategory] = React.useState<number>(undefined);
@@ -147,11 +147,10 @@ const Categories: React.FC<CategoriesProps> = ({ data }) => {
 
       <Buttons>
         {books.map((item: SelectOption, i: number) => (
-          <LazyLoad height={200}>
+          <LazyLoad height={200} key={item.value}>
             <ButtonBaseStyled
               focusRipple
               onClick={() => navigate(item.value)}
-              key={item.value}
               color={"primary"}
             >
               {imageUrl(item.text) && (
@@ -159,7 +158,7 @@ const Categories: React.FC<CategoriesProps> = ({ data }) => {
               )}
               <TextStyled color="textPrimary" variant="h6">
                 {startCase(item.text)}
-                <HrStyled color={teal[300]} />
+                <HrStyled className="hr" />
               </TextStyled>
             </ButtonBaseStyled>
           </LazyLoad>

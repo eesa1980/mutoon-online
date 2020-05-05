@@ -24,11 +24,13 @@ const PaperStyled = withTheme(styled(Paper)`
 `);
 
 const Text = withTheme(styled("div")`
+  text-align: justify;
   margin: 0;
   padding: ${({ theme }) => theme.spacing(2)}px
     ${({ theme }) => theme.spacing(4)}px;
 
   p {
+    text-align: inherit;
     display: block;
     margin-block-start: ${({ theme }) => theme.spacing(2)}px;
     margin-block-end: ${({ theme }) => theme.spacing(2)}px;
