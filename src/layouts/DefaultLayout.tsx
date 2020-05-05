@@ -41,9 +41,7 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = (props) => {
 
           caption: {
             fontFamily: "Lateef",
-            fontSize: 35,
             direction: "rtl",
-            fontWeight: 100,
           },
         },
       }),

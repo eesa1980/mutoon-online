@@ -1,5 +1,4 @@
 import { Container, Paper, Typography } from "@material-ui/core";
-import teal from "@material-ui/core/colors/teal";
 import { withTheme } from "@material-ui/core/styles";
 import parse from "html-react-parser";
 import * as React from "react";
@@ -53,13 +52,13 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
                       <Typography variant="h4" component="h1" align="center">
                         <p>{pageContext.title}</p>
                       </Typography>
-                      <Hr color={teal[300]} />
+                      <Hr />
                     </>
                   )}
                   <Typography component="span" variant={"caption"}>
                     {parse(page?.acf?.arabic)}
                   </Typography>
-                  <Hr color={teal[300]} />
+                  <Hr />
                   <Typography component="span">
                     {parse(page?.acf?.english)}
                   </Typography>
