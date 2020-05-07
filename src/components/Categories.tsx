@@ -1,5 +1,4 @@
-import { ButtonBase, Paper, Typography, withTheme } from "@material-ui/core";
-import teal from "@material-ui/core/colors/teal";
+import { ButtonBase, Typography, useTheme, withTheme } from "@material-ui/core";
 import { navigate } from "gatsby";
 import Img from "gatsby-image";
 import startCase from "lodash-es/startCase";
@@ -12,7 +11,8 @@ import {
   CategoryEdge,
 } from "../model";
 import NotFoundPage from "../pages/404";
-import { Hr } from "../styled/Hr";
+import Hr from "../styled/Hr";
+import PaperStyled from "../styled/PaperStyled";
 import Select, { SelectOption } from "./../components/Select";
 
 interface CategoriesProps {
@@ -22,12 +22,16 @@ interface CategoriesProps {
   };
 }
 
-const PaperStyled = styled(Paper)`
-  padding: 20px 40px;
-  margin: 20px auto;
+const Paperr = withTheme(styled(PaperStyled)`
   display: flex;
   flex-direction: column;
-`;
+`);
+
+const Wrapper = withTheme(styled.div`
+  padding: ${({ theme }) => {
+    return theme.spacing(2) + "px " + theme.spacing(4) + "px";
+  }};
+`);
 
 const Buttons = styled.div`
   display: grid;
@@ -76,6 +80,7 @@ const HrStyled = withTheme(styled(Hr)`
 const Categories: React.FC<CategoriesProps> = ({ data }) => {
   const [category, setCategory] = React.useState<number>(undefined);
   const { allWordpressCategory, allWordpressWpMedia } = data;
+  const theme = useTheme();
 
   if (!allWordpressCategory) {
     return <NotFoundPage />;
@@ -131,22 +136,23 @@ const Categories: React.FC<CategoriesProps> = ({ data }) => {
 
   return (
     <>
-      <PaperStyled>
-        <Typography variant="h4" component="h1" align="center">
-          Select a Book
-        </Typography>
-        <Hr color={teal[300]} />
-        <Select
-          defaultValue={"all"}
-          id={"categories"}
-          title={"Category"}
-          values={categories}
-          handleChange={handleChange.category}
-        />
-      </PaperStyled>
+      <Paperr>
+        <Wrapper>
+          <Typography variant="h5" component="h1" align="center">
+            <p>Select a Book</p>
+          </Typography>
+          <Select
+            defaultValue={"all"}
+            id={"categories"}
+            title={"Category"}
+            values={categories}
+            handleChange={handleChange.category}
+          />
+        </Wrapper>
+      </Paperr>
 
       <Buttons>
-        {books.map((item: SelectOption, i: number) => (
+        {books.map((item: SelectOption) => (
           <LazyLoad height={200} key={item.value}>
             <ButtonBaseStyled
               focusRipple

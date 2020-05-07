@@ -3,7 +3,7 @@ export interface AllWordpressWpBooks {
 }
 
 interface BookEdge {
-  node: Node;
+  node: Page;
 }
 
 export interface Page {

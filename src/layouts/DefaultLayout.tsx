@@ -36,6 +36,7 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = (props) => {
           // type: prefersDarkMode ? "dark" : "light",
           type: "dark",
         },
+
         typography: {
           fontFamily: "Roboto",
 
