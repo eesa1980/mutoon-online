@@ -31,11 +31,12 @@ interface SearchPageProps {
 }
 
 const SearchForm = styled.div`
-  position: fixed;
+  position: sticky;
   left: 0;
   top: 0;
   width: 100%;
   text-align: center;
+  background: #303030;
 
   label {
     text-align: center;
@@ -48,7 +49,7 @@ const SearchForm = styled.div`
 `;
 
 const Wrapper = styled.div`
-  height: calc(100vh - 74px);
+  /* height: calc(100vh - 74px);
   position: absolute;
   top: 74px;
   left: 0;
@@ -56,7 +57,7 @@ const Wrapper = styled.div`
   right: 0;
   margin: auto;
   overflow: auto;
-  width: 100%;
+  width: 100%; */
 `;
 
 const Search: React.FC<SearchPageProps> = ({ data }) => {

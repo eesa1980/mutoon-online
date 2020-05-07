@@ -75,7 +75,7 @@ const Navbar = ({ onChange }: any) => {
 
   return (
     <div className={classes.root}>
-      <AppBar position="fixed">
+      <AppBar position="sticky">
         <Toolbar>
           <IconButton
             edge="start"
