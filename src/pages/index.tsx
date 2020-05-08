@@ -77,7 +77,7 @@ const Index: React.FC<IndexPageProps> = (props) => {
   return (
     <DefaultLayout>
       <HeroWrapper>
-        <HeroImage fluid={heroImage.fluid} />
+        {heroImage && <HeroImage fluid={heroImage.fluid} />}
         <Logo>
           <img src={logoImage.publicURL} />
         </Logo>
