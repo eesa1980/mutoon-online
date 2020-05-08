@@ -11,7 +11,7 @@ import debounce from "lodash-es/debounce";
 import * as React from "react";
 import styled from "styled-components";
 import Navbar from "../components/Navbar";
-import Search from "../components/search";
+import Search from "../components/Search";
 import SEO from "../components/Seo";
 import { compose } from "../util/compose";
 import { stripTashkeel } from "../util/stringModifiers";
