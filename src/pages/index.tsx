@@ -74,8 +74,6 @@ const Index: React.FC<IndexPageProps> = (props) => {
     imageSharp,
   } = props.data;
 
-  console.log("imageSharp :>> ", imageSharp);
-
   return (
     <DefaultLayout>
       <HeroWrapper>
