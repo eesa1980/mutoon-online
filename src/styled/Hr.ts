@@ -3,7 +3,7 @@ import { withTheme } from "@material-ui/core/styles";
 import styled from "styled-components";
 
 const Hr = styled.div`
-  margin: ${({ theme }) => theme.spacing(3)}px auto;
+  margin: ${({ theme }) => theme.spacing(2)}px auto;
   width: 100px;
   transition: all 0.2s;
   border-top: 2px solid ${teal[400]};

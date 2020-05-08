@@ -1,4 +1,10 @@
-import { FormControl, InputLabel, MenuItem, Select } from "@material-ui/core";
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectProps,
+} from "@material-ui/core";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import startCase from "lodash-es/startCase";
 import * as React from "react";
@@ -9,11 +15,12 @@ export interface SelectOption {
 }
 
 interface PropTypes {
-  title: string;
+  title?: string;
   values: SelectOption[];
-  handleChange?: any;
   id: string;
+  handleChange?: any;
   defaultValue?: string;
+  selectProps?: SelectProps;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -49,7 +56,7 @@ const SelectComponent: React.FC<PropTypes> = (props) => {
 
   return (
     <FormControl className={classes.formControl}>
-      <InputLabel id={props.id}>{props.title}</InputLabel>
+      {props.title && <InputLabel id={props.id}>{props.title}</InputLabel>}
       <Select
         labelId={props.id}
         id={props.id + "-open-select"}
@@ -58,6 +65,7 @@ const SelectComponent: React.FC<PropTypes> = (props) => {
         onOpen={handleOpen}
         value={value}
         onChange={handleChange}
+        {...props.selectProps}
       >
         {!props.defaultValue && (
           <MenuItem value="">

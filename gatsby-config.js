@@ -2,7 +2,13 @@ require("dotenv").config();
 
 module.exports = {
   siteMetadata: {
-    title: `Mutoon Online`,
+    title: "Mutoon Online",
+    titleTemplate: "%s · Mutoon Online Memorisation Tool",
+    description:
+      "A tool to help with memorsation of some important Islamic texts.",
+    url: "mutoon-online.app", // No trailing slash allowed!
+    image: "/images/logo.jpg", // Path to your image you placed in the 'static' folder
+    twitterUsername: "@mutoon_online",
   },
   plugins: [
     /*
@@ -130,19 +136,43 @@ module.exports = {
         },
       },
     },
+    {
+      resolve: `gatsby-plugin-favicon`,
+      options: {
+        logo: "./src/images/favicon.png",
+
+        // WebApp Manifest Configuration
+        appDescription:
+          "A tool to help with memorsation of some important Islamic texts.",
+        developerName: "eesa1980",
+        developerURL: "https://github.com/eesa1980",
+        background: "#fff",
+        theme_color: "#fff",
+
+        icons: {
+          android: true,
+          appleIcon: true,
+          appleStartup: true,
+          coast: false,
+          favicons: true,
+          firefox: true,
+          yandex: false,
+          windows: false,
+        },
+      },
+    },
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `images`,
+        path: `${__dirname}/src/images/`,
+      },
+    },
     `gatsby-plugin-sharp`,
     `gatsby-transformer-sharp`,
     `gatsby-plugin-styled-components`,
     `gatsby-plugin-react-helmet`,
     // Add typescript stack into webpack
     `gatsby-plugin-typescript`,
-    // You can have multiple instances of this plugin
-    // to create pages from React components in different directories.
-    //
-    // The following sets up the pattern of having multiple
-    // "pages" directories in your project
-
-    `gatsby-transformer-remark`,
-    `gatsby-plugin-mdx`,
   ],
 };

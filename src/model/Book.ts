@@ -2,7 +2,7 @@ export interface AllWordpressWpBooks {
   edges: BookEdge[];
 }
 
-interface BookEdge {
+export interface BookEdge {
   node: Page;
 }
 

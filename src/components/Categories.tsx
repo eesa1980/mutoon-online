@@ -1,4 +1,4 @@
-import { ButtonBase, Typography, useTheme, withTheme } from "@material-ui/core";
+import { ButtonBase, Typography, withTheme } from "@material-ui/core";
 import { navigate } from "gatsby";
 import Img from "gatsby-image";
 import startCase from "lodash-es/startCase";
@@ -12,7 +12,6 @@ import {
 } from "../model";
 import NotFoundPage from "../pages/404";
 import Hr from "../styled/Hr";
-import PaperStyled from "../styled/PaperStyled";
 import Select, { SelectOption } from "./../components/Select";
 
 interface CategoriesProps {
@@ -22,15 +21,19 @@ interface CategoriesProps {
   };
 }
 
-const Paperr = withTheme(styled(PaperStyled)`
-  display: flex;
-  flex-direction: column;
-`);
-
 const Wrapper = withTheme(styled.div`
-  padding: ${({ theme }) => {
-    return theme.spacing(2) + "px " + theme.spacing(4) + "px";
-  }};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: ${({ theme }) => theme.spacing(2)}px;
+
+  > :first-child {
+    margin-right: ${({ theme }) => theme.spacing(1)}px;
+  }
+
+  > :last-child {
+    margin-bottom: 0px;
+  }
 `);
 
 const Buttons = styled.div`
@@ -39,7 +42,7 @@ const Buttons = styled.div`
   grid-auto-flow: dense;
 `;
 
-const ButtonBaseStyled = styled(ButtonBase)`
+const ButtonBaseStyled = withTheme(styled(ButtonBase)`
   position: relative;
   width: 100%;
   height: 200px;
@@ -53,8 +56,17 @@ const ButtonBaseStyled = styled(ButtonBase)`
     .gatsby-image-wrapper {
       opacity: 0.1;
     }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      color: ${({ theme }) => theme.palette.text.secondary};
+    }
   }
-`;
+`);
 
 const ImageStyled = styled(Img)`
   width: 100%;
@@ -67,20 +79,19 @@ const ImageStyled = styled(Img)`
   transition: all 0.2s;
 `;
 
-const TextStyled = styled(Typography)`
+const TextStyled = withTheme(styled(Typography)`
   position: relative;
   z-index: 1;
-  padding: 20px;
-`;
+  padding: ${({ theme }) => theme.spacing(4)}px;
+`);
 
 const HrStyled = withTheme(styled(Hr)`
-  margin-bottom: -20px;
+  margin-bottom: -${({ theme }) => theme.spacing(1)}px;
 `);
 
 const Categories: React.FC<CategoriesProps> = ({ data }) => {
   const [category, setCategory] = React.useState<number>(undefined);
   const { allWordpressCategory, allWordpressWpMedia } = data;
-  const theme = useTheme();
 
   if (!allWordpressCategory) {
     return <NotFoundPage />;
@@ -136,20 +147,20 @@ const Categories: React.FC<CategoriesProps> = ({ data }) => {
 
   return (
     <>
-      <Paperr>
-        <Wrapper>
-          <Typography variant="h5" component="h1" align="center">
-            <p>Select a Book</p>
-          </Typography>
-          <Select
-            defaultValue={"all"}
-            id={"categories"}
-            title={"Category"}
-            values={categories}
-            handleChange={handleChange.category}
-          />
-        </Wrapper>
-      </Paperr>
+      <Wrapper>
+        <Typography color="textSecondary" component={"span"}>
+          Categories:
+        </Typography>
+        <Select
+          selectProps={{
+            variant: "outlined",
+          }}
+          defaultValue={"all"}
+          id={"categories"}
+          values={categories}
+          handleChange={handleChange.category}
+        />
+      </Wrapper>
 
       <Buttons>
         {books.map((item: SelectOption) => (
