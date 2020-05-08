@@ -71,13 +71,13 @@ const Index: React.FC<IndexPageProps> = (props) => {
     allWordpressCategory,
     allWordpressWpMedia,
     site,
-    imageSharp,
+    imageSharp: heroImage,
   } = props.data;
 
   return (
     <DefaultLayout>
       <HeroWrapper>
-        <HeroImage fluid={imageSharp.fluid} />
+        <HeroImage fluid={heroImage.fluid} />
         <Logo>
           <img src={logoImage.publicURL} />
         </Logo>
