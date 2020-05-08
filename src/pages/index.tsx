@@ -23,7 +23,7 @@ interface IndexPageProps {
 
 const HeroWrapper = styled(Paper)`
   text-align: center;
-  background-image: url(${({ src }: any) => src});
+  background-image: "https://images.unsplash.com/photo-1584498570807-65de8dc95648?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1631&q=80";
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
@@ -65,11 +65,7 @@ const Index: React.FC<IndexPageProps> = (props) => {
 
   return (
     <DefaultLayout>
-      <HeroWrapper
-        src={
-          "https://images.unsplash.com/photo-1584498570807-65de8dc95648?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1631&q=80"
-        }
-      >
+      <HeroWrapper>
         <Hero>
           <Logo>
             <img src={logoImage.publicURL} />
