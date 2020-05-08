@@ -11,4 +11,7 @@ export interface Category {
   wordpress_parent: number;
   slug: string;
   wordpress_id: number;
+  parent_element: {
+    name: string;
+  };
 }

@@ -1,3 +1,11 @@
+import {
+  Divider,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+} from "@material-ui/core";
 import AppBar from "@material-ui/core/AppBar";
 import IconButton from "@material-ui/core/IconButton";
 import InputBase from "@material-ui/core/InputBase";
@@ -6,12 +14,21 @@ import {
   fade,
   makeStyles,
   Theme,
+  useTheme,
 } from "@material-ui/core/styles";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
+import BookTwoToneIcon from "@material-ui/icons/Book";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
+import { navigate, useStaticQuery } from "gatsby";
+import { groupBy } from "lodash-es";
 import * as React from "react";
+import { AllWordpressCategory } from "../model/category";
+
+const drawerWidth = 240;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -27,6 +44,21 @@ const useStyles = makeStyles((theme: Theme) =>
       [theme.breakpoints.up("sm")]: {
         display: "block",
       },
+    },
+    drawer: {
+      width: drawerWidth,
+      flexShrink: 0,
+    },
+    drawerPaper: {
+      width: drawerWidth,
+    },
+    drawerHeader: {
+      display: "flex",
+      alignItems: "center",
+      padding: theme.spacing(0, 1),
+      // necessary for content to be below app bar
+      ...theme.mixins.toolbar,
+      justifyContent: "flex-end",
     },
     search: {
       position: "relative",
@@ -54,6 +86,7 @@ const useStyles = makeStyles((theme: Theme) =>
     inputRoot: {
       color: "inherit",
     },
+    toolbar: theme.mixins.toolbar,
     inputInput: {
       padding: theme.spacing(1, 1, 1, 0),
       // vertical padding + font size from searchIcon
@@ -70,42 +103,136 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const Navbar = ({ onChange }: any) => {
+const Navbar = (props: any) => {
   const classes = useStyles();
+  const theme = useTheme();
+  const [open, setOpen] = React.useState(false);
+
+  const data: { allWordpressCategory: AllWordpressCategory } = useStaticQuery(
+    navbarQuery
+  );
+
+  const handleDrawerToggle = () => {
+    setOpen(!open);
+  };
+
+  const grouped = groupBy(
+    data.allWordpressCategory.edges,
+    "node.parent_element.name"
+  );
+
+  const drawer = (
+    <div>
+      <div className={classes.drawerHeader}>
+        <IconButton onClick={handleDrawerToggle}>
+          {theme.direction === "ltr" ? (
+            <ChevronLeftIcon />
+          ) : (
+            <ChevronRightIcon />
+          )}
+        </IconButton>
+      </div>
+      <Divider />
+      {Object.entries(grouped)
+        .filter((item) => item[0] !== "undefined")
+        .map((group, index) => {
+          const [title, edges] = group;
+
+          return (
+            <List>
+              <ListItem key={index}>
+                <ListItemText primary={title} />
+              </ListItem>
+              {edges
+                .filter((item) => item.node?.parent_element?.name === title)
+                .map((edge) => {
+                  return (
+                    <ListItem
+                      button
+                      key={index}
+                      onClick={() => navigate(edge.node.slug)}
+                    >
+                      <ListItemIcon>
+                        <BookTwoToneIcon />{" "}
+                      </ListItemIcon>
+                      <ListItemText primary={edge.node.name} />
+                    </ListItem>
+                  );
+                })}
+              <Divider />
+            </List>
+          );
+        })}
+    </div>
+  );
 
   return (
-    <AppBar position="sticky">
-      <Toolbar>
-        <IconButton
-          edge="start"
-          className={classes.menuButton}
-          color="inherit"
-          aria-label="open drawer"
-        >
-          <MenuIcon />
-        </IconButton>
-        <Typography className={classes.title} variant="h6" noWrap>
-          Material-UI
-        </Typography>
-        <div className={classes.search}>
-          <div className={classes.searchIcon}>
-            <SearchIcon />
+    <>
+      <AppBar position="sticky">
+        <Toolbar>
+          <IconButton
+            edge="start"
+            className={classes.menuButton}
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerToggle}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography className={classes.title} variant="h6" noWrap>
+            Mutoon Online
+          </Typography>
+          <div className={classes.search}>
+            <div className={classes.searchIcon}>
+              <SearchIcon />
+            </div>
+            <InputBase
+              autoFocus={true}
+              fullWidth={true}
+              onChange={props.onSearch}
+              placeholder="Search book texts..."
+              classes={{
+                root: classes.inputRoot,
+                input: classes.inputInput,
+              }}
+              inputProps={{ "aria-label": "search book text" }}
+            />
           </div>
-          <InputBase
-            autoFocus={true}
-            fullWidth={true}
-            onChange={onChange}
-            placeholder="Search book texts..."
-            classes={{
-              root: classes.inputRoot,
-              input: classes.inputInput,
-            }}
-            inputProps={{ "aria-label": "search book text" }}
-          />
-        </div>
-      </Toolbar>
-    </AppBar>
+        </Toolbar>
+      </AppBar>
+      <nav className={classes.drawer} aria-label="mailbox folders">
+        <Drawer
+          className={classes.drawer}
+          variant="temporary"
+          anchor="left"
+          open={open}
+          classes={{
+            paper: classes.drawerPaper,
+          }}
+        >
+          {drawer}
+        </Drawer>
+      </nav>
+    </>
   );
 };
+
+export const navbarQuery = graphql`
+  query NavbarQuery {
+    allWordpressCategory {
+      edges {
+        node {
+          name
+          wordpress_parent
+          slug
+          wordpress_id
+          parent_element {
+            name
+          }
+        }
+      }
+    }
+  }
+`;
 
 export default Navbar;

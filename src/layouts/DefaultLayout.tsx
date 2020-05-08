@@ -77,7 +77,7 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = (props) => {
     <Background theme={theme}>
       <ThemeProvider theme={theme}>
         <SEO />
-        <Navbar onChange={(e: any) => debounced(e.target.value)} />
+        <Navbar onSearch={(e: any) => debounced(e.target.value)} />
         {searchVal ? <Search searchVal={searchVal} /> : props.children}
       </ThemeProvider>
     </Background>
