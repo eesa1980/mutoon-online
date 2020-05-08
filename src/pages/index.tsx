@@ -1,11 +1,13 @@
 import { Container, Paper, Typography } from "@material-ui/core";
 import teal from "@material-ui/core/colors/teal";
 import { withTheme } from "@material-ui/styles";
+import GatsbyImage from "gatsby-image";
 import * as React from "react";
 import styled from "styled-components";
 import Categories from "../components/Categories";
 import DefaultLayout from "../layouts/DefaultLayout";
 import { AllWordpressCategory, AllWordpressWpBooks, Site } from "../model";
+import { Fluid } from "../model/fluid";
 import { AllWordpressWpMedia } from "../model/media";
 import Hr from "../styled/Hr";
 
@@ -16,20 +18,29 @@ interface IndexPageProps {
     allWordpressCategory: AllWordpressCategory;
     allWordpressWpMedia: AllWordpressWpMedia;
     allWordpressWpBooks: AllWordpressWpBooks;
+    imageSharp: {
+      fluid: Fluid;
+    };
     site: Site;
     file: any;
   };
 }
 
 const HeroWrapper = styled(Paper)`
-  text-align: center;
-  background-image: "https://images.unsplash.com/photo-1584498570807-65de8dc95648?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1631&q=80";
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
   position: relative;
+  position: relative;
+  z-index: 1;
+`;
 
-  &:before {
+const HeroImage = styled(GatsbyImage)`
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 0;
+
+  &:after {
     content: "";
     position: absolute;
     width: 100%;
@@ -37,21 +48,20 @@ const HeroWrapper = styled(Paper)`
     background: ${teal[800]};
     top: 0;
     left: 0;
-    opacity: 0.5;
+    opacity: 0.75;
   }
-`;
-
-const Hero = styled.div`
-  position: relative;
-  z-index: 1;
 `;
 
 const Logo = withTheme(styled.div`
   height: 150px;
+  position: relative;
+  width: 100%;
 
   img {
     padding: ${({ theme }) => theme.spacing(2)}px;
     height: inherit;
+    margin: auto;
+    display: block;
   }
 `);
 
@@ -61,16 +71,18 @@ const Index: React.FC<IndexPageProps> = (props) => {
     allWordpressCategory,
     allWordpressWpMedia,
     site,
+    imageSharp,
   } = props.data;
+
+  console.log("imageSharp :>> ", imageSharp);
 
   return (
     <DefaultLayout>
       <HeroWrapper>
-        <Hero>
-          <Logo>
-            <img src={logoImage.publicURL} />
-          </Logo>
-        </Hero>
+        <HeroImage fluid={imageSharp.fluid} />
+        <Logo>
+          <img src={logoImage.publicURL} />
+        </Logo>
       </HeroWrapper>
       <Container maxWidth="xs">
         <Typography
@@ -130,12 +142,16 @@ export const pageQuery = graphql`
         }
         localFile {
           childImageSharp {
-            id
             fluid {
               ...GatsbyImageSharpFluid
             }
           }
         }
+      }
+    }
+    imageSharp(id: { eq: "900d43bb-d499-5fbd-b20b-e73d8c10f181" }) {
+      fluid {
+        ...GatsbyImageSharpFluid
       }
     }
   }

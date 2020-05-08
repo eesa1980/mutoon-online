@@ -87,7 +87,14 @@ const Search: React.FC<SearchPageProps> = ({ searchVal = "" }) => {
     });
   }, [searchVal]);
 
-  console.log("results :>> ");
+  const counts = {
+    results: results.reduce((a: any, b) => {
+      return a + b.count;
+    }, 0),
+    pages: results.reduce((a: any, b) => {
+      return a + b.edges.length;
+    }, 0),
+  };
 
   return (
     <Root>
@@ -99,15 +106,8 @@ const Search: React.FC<SearchPageProps> = ({ searchVal = "" }) => {
           align="center"
         >
           <Typography component="strong" variant="h5" color="textPrimary">
-            "{searchVal}" -{" "}
-            {results.length &&
-              results.reduce((a: any, b) => {
-                return a + b.count;
-              }, 0)}
-            {" results in "}{" "}
-            {results.reduce((a: any, b) => {
-              return a + b.edges.length;
-            }, 0)}
+            "{searchVal}" - {counts.results}
+            {" results in "} {counts.pages}
             {" pages"}
           </Typography>
         </Typography>
