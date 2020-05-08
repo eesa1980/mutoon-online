@@ -9,8 +9,15 @@ export const stripHtml = (input: string) => {
 };
 
 export const addHighlighting = (input: string, val: string) => {
-  return input.replace(
-    new RegExp(escapeRegExp(val), "gi"),
-    `<mark>${val}</mark>`
-  ) || val;
+  let count = 0;
+
+  const result = input.replace(new RegExp(escapeRegExp(val), "gi"), () => {
+    count++;
+    return `<mark>${val}</mark>`;
+  });
+
+  return {
+    count,
+    result,
+  };
 };

@@ -8,6 +8,7 @@ import styled from "styled-components";
 import { AllWordpressCategory } from "../model";
 import { AllWordpressWpBooks, BookEdge } from "../model/book";
 import { AllWordpressWpMedia } from "../model/media";
+import Hr from "../styled/Hr";
 import { compose } from "../util/compose";
 import {
   addHighlighting,
@@ -46,9 +47,13 @@ const Search: React.FC<SearchPageProps> = ({ searchVal = "" }) => {
     return re.test(`${english} ${arabic}`) && searchVal;
   };
 
-  const results: { title: string; edges: BookEdge[] }[] = React.useMemo(() => {
+  const results: {
+    title: string;
+    edges: BookEdge[];
+    count: number;
+  }[] = React.useMemo(() => {
     if (!data) {
-      return [{ title: "", edges: [] }];
+      return [{ title: "", edges: [], count: 0 }];
     }
 
     const cloned = cloneDeep(data?.allWordpressWpBooks?.edges);
@@ -58,34 +63,64 @@ const Search: React.FC<SearchPageProps> = ({ searchVal = "" }) => {
 
     return Object.entries(grouped).map((book) => {
       const [title, edges] = book;
+      let count = 0;
 
       return {
         title,
         edges: edges.map((edge) => {
           const { english, arabic } = edge.node.acf;
 
+          const enRes = addHighlighting(english, searchVal);
+          const arRes = addHighlighting(stripTashkeel(arabic), searchVal);
+
           if (searchVal && edge.node) {
-            edge.node.acf.english = addHighlighting(english, searchVal);
-            edge.node.acf.arabic = addHighlighting(
-              stripTashkeel(arabic),
-              searchVal
-            );
+            edge.node.acf.english = enRes.result;
+            edge.node.acf.arabic = arRes.result;
+
+            count += enRes.count || arRes.count;
           }
 
           return edge;
         }),
+        count,
       };
     });
   }, [searchVal]);
 
+  console.log("results :>> ");
+
   return (
     <Root>
       <Container maxWidth="sm">
+        <Typography
+          component="h2"
+          variant="h5"
+          color="textSecondary"
+          align="center"
+        >
+          <Typography component="strong" variant="h5" color="textPrimary">
+            "{searchVal}" -{" "}
+            {results.length &&
+              results.reduce((a: any, b) => {
+                return a + b.count;
+              }, 0)}
+            {" results in "}{" "}
+            {results.reduce((a: any, b) => {
+              return a + b.edges.length;
+            }, 0)}
+            {" pages"}
+          </Typography>
+        </Typography>
+        <Hr />
         {results.length ? (
           results.map((item) => (
             <Fragment key={item.title}>
-              <Typography component="h2" variant="h6" color="textSecondary">
-                {item.title}
+              <Typography component="h3" variant="h6" color="textSecondary">
+                {item.title} -&nbsp;
+                <Typography component="strong" variant="h6" color="textPrimary">
+                  {item.count}&nbsp;
+                </Typography>
+                results
               </Typography>
 
               {item.edges.map((edge) => {
