@@ -77,7 +77,7 @@ const Index: React.FC<IndexPageProps> = (props) => {
   return (
     <DefaultLayout>
       <HeroWrapper>
-        {heroImage && <HeroImage fluid={heroImage.fluid} />}
+        <HeroImage fluid={heroImage.fluid} />
         <Logo>
           <img src={logoImage.publicURL} />
         </Logo>
@@ -141,15 +141,15 @@ export const pageQuery = graphql`
         localFile {
           childImageSharp {
             fluid {
-              ...GatsbyImageSharpFluid
+              ...GatsbyImageSharpFluid_noBase64
             }
           }
         }
       }
     }
-    imageSharp(id: { eq: "900d43bb-d499-5fbd-b20b-e73d8c10f181" }) {
+    imageSharp(fluid: { originalName: { eq: "hero.jpg" } }) {
       fluid {
-        ...GatsbyImageSharpFluid
+        ...GatsbyImageSharpFluid_noBase64
       }
     }
   }
