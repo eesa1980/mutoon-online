@@ -1,9 +1,17 @@
-import { Container, Typography } from "@material-ui/core";
+import {
+  Container,
+  ExpansionPanel,
+  ExpansionPanelDetails,
+  ExpansionPanelSummary,
+  Typography,
+  withTheme,
+} from "@material-ui/core";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { useStaticQuery } from "gatsby";
 import { cloneDeep, groupBy, orderBy } from "lodash-es";
 import escapeRegExp from "lodash-es/escapeRegExp";
 import * as React from "react";
-import { Fragment } from "react";
+import { Fragment, useMemo } from "react";
 import styled from "styled-components";
 import { AllWordpressCategory } from "../model";
 import { AllWordpressWpBooks, BookEdge } from "../model/book";
@@ -23,9 +31,9 @@ interface SearchPageProps {
   searchVal: string;
 }
 
-const Root = styled.div`
-  margin-top: 10px;
-`;
+const Root = withTheme(styled.div`
+  margin-top: ${({ theme }) => theme.spacing(4)}px;
+`);
 
 const Search: React.FC<SearchPageProps> = ({ searchVal = "" }) => {
   const data: {
@@ -87,14 +95,48 @@ const Search: React.FC<SearchPageProps> = ({ searchVal = "" }) => {
     });
   }, [searchVal]);
 
-  const counts = {
-    results: results.reduce((a: any, b) => {
-      return a + b.count;
-    }, 0),
-    pages: results.reduce((a: any, b) => {
-      return a + b.edges.length;
-    }, 0),
-  };
+  const counts = useMemo(
+    () => ({
+      results: results.reduce((a: any, b) => {
+        return a + b.count;
+      }, 0),
+      pages: results.reduce((a: any, b) => {
+        return a + b.edges.length;
+      }, 0),
+    }),
+    [results]
+  );
+
+  const Content = ({ edges }: { edges: BookEdge[] }) => (
+    <>
+      {edges.map((edge) => {
+        const { acf } = edge.node;
+
+        return (
+          <Fragment key={`${acf.book_title}-${acf.page_number}`}>
+            {acf.page_number > 0 ? (
+              <BookPage
+                index={acf.page_number}
+                arabic={acf?.arabic}
+                english={acf?.english}
+              />
+            ) : (
+              <Fragment />
+            )}
+          </Fragment>
+        );
+      })}
+    </>
+  );
+
+  const Title = ({ title, count }: { title: string; count: number }) => (
+    <Typography component="div" variant="h6" color="textSecondary">
+      {title}:&nbsp;
+      <Typography component="strong" variant="h6" color="textPrimary">
+        {count}&nbsp;
+      </Typography>
+    </Typography>
+  );
 
   return (
     <Root>
@@ -106,48 +148,37 @@ const Search: React.FC<SearchPageProps> = ({ searchVal = "" }) => {
           align="center"
         >
           <Typography component="strong" variant="h5" color="textPrimary">
-            "{searchVal}" - {counts.results}
-            {" results in "} {counts.pages}
-            {" pages"}
+            <p>
+              <em>"{searchVal}"</em> - {counts.results}
+              <Typography component="span" variant="h5" color="textSecondary">
+                {" matches"}
+              </Typography>
+            </p>
           </Typography>
         </Typography>
         <Hr />
         {results.length ? (
           results.map((item) => (
             <Fragment key={item.title}>
-              <Typography component="h3" variant="h6" color="textSecondary">
-                {item.title} -&nbsp;
-                <Typography component="strong" variant="h6" color="textPrimary">
-                  {item.count}&nbsp;
-                </Typography>
-                results
-              </Typography>
-
-              {item.edges.map((edge) => {
-                const { acf } = edge.node;
-                const pageNum = parseInt(acf.page_number, 10);
-
-                return (
-                  <Fragment key={`${acf.book_title}-${pageNum}`}>
-                    {parseInt(acf.page_number, 10) > 0 ? (
-                      <BookPage
-                        index={pageNum}
-                        arabic={acf?.arabic}
-                        english={acf?.english}
-                      />
-                    ) : (
-                      <Fragment />
-                    )}
-                  </Fragment>
-                );
-              })}
+              <ExpansionPanel>
+                <ExpansionPanelSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
+                >
+                  <Title title={item.title} count={item.count} />
+                </ExpansionPanelSummary>
+                <ExpansionPanelDetails style={{ display: "block" }}>
+                  <Content edges={item.edges} />
+                </ExpansionPanelDetails>
+              </ExpansionPanel>
             </Fragment>
           ))
         ) : (
           <>
             {searchVal.length > 2 && (
               <Typography variant="h6" color="textSecondary">
-                No results
+                <p>No results</p>
               </Typography>
             )}
           </>
