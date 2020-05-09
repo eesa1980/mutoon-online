@@ -71,7 +71,10 @@ exports.createPages = async ({ graphql, actions }) => {
   categories.data.allWordpressCategory.edges.forEach((edge) => {
     const book = books.data.allWordpressWpBooks.edges
       .filter((bookEdge) => bookEdge.node.categories[0].slug === edge.node.slug)
-      .map((item) => item.node);
+      .map((item) => {
+        item.node.acf.page_number = parseInt(item.node.acf.page_number);
+        return item.node;
+      });
 
     const ordered = orderBy(book, "acf.page_number", "asc");
 

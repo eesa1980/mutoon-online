@@ -22,7 +22,7 @@ interface Acf {
   english: string;
   book_title: string;
   cover_image?: Coverimage;
-  page_number: string;
+  page_number: number;
 }
 
 interface Coverimage {

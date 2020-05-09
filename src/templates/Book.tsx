@@ -14,13 +14,15 @@ interface IBookTemplate {
 }
 
 const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
+  console.log("page?.acf?.page_number :>> ", pageContext?.book[10]);
+
   return (
     <DefaultLayout>
       <Container maxWidth="sm">
         {pageContext?.book.map((page, i) => (
           <Fragment key={i}>
             <BookPage
-              index={parseInt(page?.acf?.page_number, 10)}
+              index={page?.acf?.page_number}
               title={pageContext.title}
               arabic={page?.acf?.arabic}
               english={page?.acf?.english}
