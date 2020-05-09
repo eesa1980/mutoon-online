@@ -20,7 +20,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
         {pageContext?.book.map((page, i) => (
           <Fragment key={i}>
             <BookPage
-              index={i}
+              index={page?.acf?.page_number}
               title={pageContext.title}
               arabic={page?.acf?.arabic}
               english={page?.acf?.english}
