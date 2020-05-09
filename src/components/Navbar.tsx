@@ -139,17 +139,17 @@ const Navbar = (props: any) => {
           const [title, edges] = group;
 
           return (
-            <List>
-              <ListItem key={index}>
+            <List key={index}>
+              <ListItem>
                 <ListItemText primary={title} />
               </ListItem>
               {edges
                 .filter((item) => item.node?.parent_element?.name === title)
-                .map((edge) => {
+                .map((edge, ii) => {
                   return (
                     <ListItem
                       button
-                      key={index}
+                      key={ii}
                       onClick={() => navigate(edge.node.slug)}
                     >
                       <ListItemIcon>

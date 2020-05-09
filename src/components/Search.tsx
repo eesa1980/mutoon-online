@@ -158,8 +158,8 @@ const Search: React.FC<SearchPageProps> = ({ searchVal = "" }) => {
         </Typography>
         <Hr />
         {results.length ? (
-          results.map((item) => (
-            <Fragment key={item.title}>
+          results.map((item, i) => (
+            <Fragment key={i}>
               <ExpansionPanel>
                 <ExpansionPanelSummary
                   expandIcon={<ExpandMoreIcon />}
