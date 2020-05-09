@@ -174,5 +174,11 @@ module.exports = {
     `gatsby-plugin-react-helmet`,
     // Add typescript stack into webpack
     `gatsby-plugin-typescript`,
+    {
+      resolve: `gatsby-plugin-nprogress`,
+      options: {
+        color: `teal`,
+      },
+    },
   ],
 };

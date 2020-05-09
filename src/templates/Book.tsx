@@ -14,8 +14,6 @@ interface IBookTemplate {
 }
 
 const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
-  console.log("page?.acf?.page_number :>> ", pageContext?.book[10]);
-
   return (
     <DefaultLayout>
       <Container maxWidth="sm">

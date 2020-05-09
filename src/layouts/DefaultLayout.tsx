@@ -8,6 +8,7 @@ import {
   ThemeProvider,
 } from "@material-ui/core/styles";
 import debounce from "lodash-es/debounce";
+import "nprogress/nprogress.css";
 import * as React from "react";
 import styled from "styled-components";
 import Navbar from "../components/Navbar";
