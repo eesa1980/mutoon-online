@@ -21,6 +21,7 @@ import Typography from "@material-ui/core/Typography";
 import BookTwoToneIcon from "@material-ui/icons/Book";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import HomeIcon from "@material-ui/icons/Home";
 import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
 import { navigate, useStaticQuery } from "gatsby";
@@ -132,6 +133,15 @@ const Navbar = (props: any) => {
           )}
         </IconButton>
       </div>
+      <Divider />
+      <List>
+        <ListItem button onClick={() => navigate("/")}>
+          <ListItemIcon>
+            <HomeIcon />{" "}
+          </ListItemIcon>
+          <ListItemText primary={"Home"} />
+        </ListItem>
+      </List>
       <Divider />
       {Object.entries(grouped)
         .filter((item) => item[0] !== "undefined")

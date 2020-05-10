@@ -14,7 +14,7 @@ import * as React from "react";
 import { Fragment, useMemo } from "react";
 import styled from "styled-components";
 import { AllWordpressCategory } from "../model";
-import { AllWordpressWpBooks, BookEdge } from "../model/book";
+import { AllWordpressWpBooksUngrouped, BookEdge } from "../model/book";
 import { AllWordpressWpMedia } from "../model/media";
 import Hr from "../styled/Hr";
 import { compose } from "../util/compose";
@@ -39,7 +39,7 @@ const Search: React.FC<SearchPageProps> = ({ searchVal = "" }) => {
   const data: {
     allWordpressCategory: AllWordpressCategory;
     allWordpressWpMedia: AllWordpressWpMedia;
-    allWordpressWpBooks: AllWordpressWpBooks;
+    allWordpressWpBooks: AllWordpressWpBooksUngrouped;
   } = useStaticQuery(searchQuery);
 
   if (!data) {
@@ -115,11 +115,7 @@ const Search: React.FC<SearchPageProps> = ({ searchVal = "" }) => {
         return (
           <Fragment key={`${acf.book_title}-${acf.page_number}`}>
             {acf.page_number > 0 ? (
-              <BookPage
-                index={acf.page_number}
-                arabic={acf?.arabic}
-                english={acf?.english}
-              />
+              <BookPage page={edge.node} title={acf.book_title} />
             ) : (
               <Fragment />
             )}

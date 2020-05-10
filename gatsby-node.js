@@ -5,10 +5,6 @@ const orderBy = require("lodash/orderBy");
 exports.createSchemaCustomization = ({ actions }) => {
   const { createTypes } = actions;
   const typeDefs = `
-    type Categories @Infer {
-      name: String
-    }
-
 
     type wordpress__wp_media implements Node @Infer {
       url: String
@@ -27,40 +23,27 @@ exports.createPages = async ({ graphql, actions }) => {
   // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise for more info
   const { createPage } = actions;
 
-  const categories = await graphql(`
-    query {
-      allWordpressCategory {
-        edges {
-          node {
-            name
-            wordpress_parent
-            slug
-            wordpress_id
-          }
-        }
-      }
-    }
-  `);
-
   const books = await graphql(`
     query {
       allWordpressWpBooks {
-        edges {
-          node {
+        group(field: acf___book_title) {
+          nodes {
             wordpress_id
             acf {
               arabic
               english
               book_title
-              cover_image {
-                alt
-                url
-              }
               page_number
+              audio {
+                localFile {
+                  publicURL
+                }
+              }
             }
             slug
             categories {
               slug
+              name
             }
           }
         }
@@ -68,20 +51,18 @@ exports.createPages = async ({ graphql, actions }) => {
     }
   `);
 
-  categories.data.allWordpressCategory.edges.forEach((edge) => {
-    const book = books.data.allWordpressWpBooks.edges
-      .filter((bookEdge) => bookEdge.node.categories[0].slug === edge.node.slug)
-      .map((item) => {
-        item.node.acf.page_number = parseInt(item.node.acf.page_number);
-        return item.node;
-      });
+  books.data.allWordpressWpBooks.group.forEach((group) => {
+    const nodes = group.nodes.map((node) => {
+      node.acf.page_number = parseInt(node.acf.page_number);
+      return node;
+    });
 
-    const ordered = orderBy(book, "acf.page_number", "asc");
+    const ordered = orderBy(nodes, "acf.page_number", "asc");
 
     createPage({
-      path: edge.node.slug,
+      path: ordered[0].categories[0].slug,
       component: path.resolve(`./src/templates/Book.tsx`),
-      context: { title: edge.node.name, book: ordered },
+      context: { title: ordered[0].categories[0].name, book: ordered },
     });
   });
 };

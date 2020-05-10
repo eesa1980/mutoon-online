@@ -6,7 +6,7 @@ const Hr = styled.div`
   margin: ${({ theme }) => theme.spacing(2)}px auto;
   width: 100px;
   transition: all 0.2s;
-  border-top: 2px solid ${teal[400]};
+  border-top: 1px solid ${teal[400]};
 `;
 
 export default withTheme(Hr);
