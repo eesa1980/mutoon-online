@@ -1,5 +1,5 @@
 import { Status } from "../reducers";
-import { PlayType } from "../reducers/audioReducer";
+import { LoadingStatus, PlayType } from "../reducers/audioReducer";
 
 export const SET_SRC = "SET_SRC";
 export const SET_PLAY_TYPE = "SET_PLAYTYPE";
@@ -8,6 +8,7 @@ export const PAUSE_AUDIO = "PAUSE_AUDIO";
 export const STOP_AUDIO = "STOP_AUDIO";
 export const SET_STATUS = "SET_STATUS";
 export const SET_PAGE = "SET_PAGE";
+export const SET_LOADING = "SET_AUDIO";
 
 export const setSrc = (src: string) => {
   return {
@@ -39,6 +40,15 @@ export const setPage = (page: number) => {
     type: SET_PAGE,
     payload: {
       page,
+    },
+  };
+};
+
+export const setLoadingStatus = (loadingStatus: LoadingStatus) => {
+  return {
+    type: SET_PAGE,
+    payload: {
+      loadingStatus,
     },
   };
 };

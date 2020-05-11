@@ -8,9 +8,10 @@ import styled from "styled-components";
 import { Page } from "../model/";
 import { setPage, setPlayType } from "../redux/actions/audioActions";
 import { State } from "../redux/reducers";
-import { PlayType } from "../redux/reducers/audioReducer";
+import { LoadingStatus, PlayType } from "../redux/reducers/audioReducer";
 import Hr from "../styled/Hr";
 import { PaperStyled, PaperStyledTitle } from "../styled/PaperStyled";
+import Spinner from "./Spinner";
 
 const PageText = withTheme(styled("div")`
   text-align: justify;
@@ -62,7 +63,7 @@ const BookPage: React.FC<PageProps> = ({
 
   return (
     <Wrapper
-    id={`page-${page_number}`}
+      id={`page-${page_number}`}
       elevation={page_number > 1 ? 3 : 0}
       disabled={page_number === audioState.page}
       style={{
@@ -79,10 +80,13 @@ const BookPage: React.FC<PageProps> = ({
         }
       }}
     >
+      {audioState.loadingStatus === LoadingStatus.LOADING &&
+        page_number === audioState.page && <Spinner />}
       {page_number > 0 && (
         <PageNumber>
           <Typography variant="body1" component="strong" align="center">
             Page {page_number}
+            &nbsp; &nbsp;
           </Typography>
         </PageNumber>
       )}

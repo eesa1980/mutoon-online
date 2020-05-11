@@ -9,10 +9,12 @@ import {
 } from "../actions/audioActions";
 
 interface Audio {
+  player: HTMLAudioElement;
   page: number;
   src: string;
   playType: PlayType;
   status: Status;
+  loadingStatus: LoadingStatus;
 }
 
 export interface State {
@@ -35,11 +37,21 @@ export enum PlayType {
   CONTINUOUS_PAUSED = "continuous_paused",
 }
 
+export enum LoadingStatus {
+  INACTIVE = "inactive",
+  LOADING = "loading",
+  READY = "READY",
+}
+
+const player = typeof window !== "undefined" && new Audio();
+
 const INITIAL_STATE: State["audio"] = {
+  player,
   page: 1,
   src: "",
   playType: PlayType.PLAY_ONCE,
   status: Status.INACTIVE,
+  loadingStatus: LoadingStatus.INACTIVE,
 };
 
 export const audioReducer = (state = INITIAL_STATE, action: any) => {

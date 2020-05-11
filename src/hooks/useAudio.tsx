@@ -1,31 +1,26 @@
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { Page } from "../model/book";
 import { setStatus } from "../redux/actions";
-import { setPage, setPlayType, setSrc } from "../redux/actions/audioActions";
+import {
+  setLoadingStatus,
+  setPage,
+  setPlayType,
+  setSrc,
+} from "../redux/actions/audioActions";
 import { State, Status } from "../redux/reducers";
-import { PlayType } from "../redux/reducers/audioReducer";
+import { LoadingStatus, PlayType } from "../redux/reducers/audioReducer";
 
-export const useAudio = (book: Page[]) => {
-  const [instance, setInstance] = useState<HTMLAudioElement>(undefined);
-
-  const audioState: State["audio"] = useSelector(
-    (state: State) => state?.audio
-  );
-
+export const useAudio = (audioState: State["audio"], book: Page[]) => {
   const dispatch = useDispatch();
 
+  /**
+   *
+   * @param {String} src
+   */
   const init = async (src: string) => {
-    if (!instance) {
-      const audio = new Audio(src);
-      audio.loop = audioState.playType === PlayType.LOOPING;
-      setInstance(audio);
-    } else {
-      instance.setAttribute("src", src);
-      instance.load();
-    }
-
-    await waitForAudio();
+    audioState.player.setAttribute("src", src);
+    audioState.player.load();
 
     if (audioState.playType === PlayType.CONTINUOUS) {
       dispatch(setStatus(Status.PLAYING));
@@ -36,71 +31,65 @@ export const useAudio = (book: Page[]) => {
     }
   };
 
-  const waitForAudio = async () => {
-    try {
-      return new Promise((res, rej) => {
-        setInterval(() => {
-          if (instance?.readyState > 2) {
-            return res(instance);
-          }
-        }, 500);
-      });
-    } catch (e) {
-      console.info(e);
-    }
-  };
-
-  // Init / update audio element
   useEffect(() => {
     init(audioState.src);
   }, [audioState.src]);
 
-  // Set play / pause
-  useEffect(() => {
-    if (!audioState || !instance) {
+  /**
+   *
+   */
+  const setPlayState = async () => {
+    try {
+      switch (audioState.status) {
+        case Status.PLAYING:
+          dispatch(setLoadingStatus(LoadingStatus.LOADING));
+          await audioState.player.play();
+          dispatch(setLoadingStatus(LoadingStatus.READY));
+          break;
+
+        case Status.PAUSED:
+          audioState.player.pause();
+          break;
+
+        case Status.STOPPED:
+          audioState.player.pause();
+          audioState.player.currentTime = 0;
+          break;
+
+        default:
+          break;
+      }
+    } catch (e) {
       return;
     }
+  };
 
-    switch (audioState.status) {
-      case Status.PLAYING:
-        instance.play();
-        break;
-
-      case Status.PAUSED:
-        instance.pause();
-        break;
-
-      case Status.STOPPED:
-        instance.pause();
-        instance.currentTime = 0;
-        break;
-
-      default:
-        break;
-    }
-  }, [audioState.status]);
+  // Set play / pause
+  useEffect(() => void setPlayState(), [audioState.status]);
 
   // Update src url
   useEffect(() => {
-    const { publicURL } = book[audioState.page].acf.audio?.localFile;
-    dispatch(setSrc(publicURL));
-    dispatch(setStatus(Status.STOPPED));
+    if (book?.[audioState.page]?.acf) {
+      const { publicURL } = book[audioState.page].acf.audio?.localFile;
+      dispatch(setSrc(publicURL));
+      dispatch(setStatus(Status.STOPPED));
+    }
   }, [audioState.page]);
 
   useEffect(() => {
-    if (!instance) {
+    if (!audioState.player) {
       return;
     }
-    instance.loop = audioState.playType === PlayType.LOOPING;
+    audioState.player.loop = audioState.playType === PlayType.LOOPING;
   }, [audioState.playType]);
 
   // set event handler
   useEffect(() => {
-    if (!instance) {
+    if (!audioState.player) {
       return;
     }
 
-    instance.onended = () => {
+    audioState.player.onended = () => {
       switch (audioState.playType) {
         case PlayType.PLAY_ONCE:
           dispatch(setStatus(Status.STOPPED));
@@ -118,5 +107,5 @@ export const useAudio = (book: Page[]) => {
     };
   }, [audioState]);
 
-  return { init, stop };
+  return true;
 };

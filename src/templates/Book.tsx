@@ -4,10 +4,11 @@ import { Fragment, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import BookPage from "../components/BookPage";
 import BottomNav from "../components/BottomNav";
+import Spinner from "../components/Spinner";
 import { useAudio } from "../hooks/useAudio";
 import DefaultLayout from "../layouts/DefaultLayout";
 import { Page } from "../model";
-import { setPlayType, setStatus } from "../redux/actions/audioActions";
+import { setPage, setPlayType, setStatus } from "../redux/actions/audioActions";
 import { State } from "../redux/reducers";
 import { PlayType, Status } from "../redux/reducers/audioReducer";
 
@@ -22,22 +23,19 @@ interface IBookTemplate {
 const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
   const audioState: State["audio"] = useSelector((state: State) => state.audio);
   const dispatch = useDispatch();
-  const audioPlayer = useAudio(pageContext?.book);
-
-  if (!audioState || !audioPlayer) {
-    return <></>;
-  }
+  const audioHelper = useAudio(audioState, pageContext?.book);
 
   useEffect(() => {
-    console.log("test :>> ");
-    dispatch(setStatus(Status.STOPPED));
-    dispatch(setPlayType(PlayType.PLAY_ONCE));
-
     return () => {
-      dispatch(setStatus(Status.STOPPED));
+      dispatch(setPage(1));
       dispatch(setPlayType(PlayType.PLAY_ONCE));
+      dispatch(setStatus(Status.STOPPED));
     };
   }, []);
+
+  if (!audioState || !audioHelper) {
+    return <Spinner />;
+  }
 
   const onClickPlayToggle = () => {
     const setDispatch = (st: Status) => dispatch(setStatus(st));
@@ -78,7 +76,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
               <BookPage
                 page={page}
                 title={pageContext.title}
-                audioPlayer={audioPlayer}
+                audioPlayer={audioHelper}
                 audioState={audioState}
                 dispatch={dispatch}
               />
