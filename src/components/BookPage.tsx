@@ -62,7 +62,7 @@ const BookPage: React.FC<PageProps> = ({
 
   return (
     <Wrapper
-      id={`page-${page_number}`}
+    id={`page-${page_number}`}
       elevation={page_number > 1 ? 3 : 0}
       disabled={page_number === audioState.page}
       style={{
