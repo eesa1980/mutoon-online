@@ -43,6 +43,7 @@ export const useAudio = (audioState: State["audio"], book: Page[]) => {
       switch (audioState.status) {
         case Status.PLAYING:
           dispatch(setLoadingStatus(LoadingStatus.LOADING));
+          audioState.player.src = audioState.src;
           await audioState.player.play();
           dispatch(setLoadingStatus(LoadingStatus.READY));
           break;
