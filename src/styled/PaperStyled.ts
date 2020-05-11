@@ -6,6 +6,7 @@ export const PaperStyled = withTheme(styled(Paper)`
   position: relative;
   display: block;
   margin: ${({ theme }) => theme.spacing(2)}px 0;
+  padding-top: ${({ theme }) => theme.spacing(4)}px;
   overflow: hidden;
 `);
 

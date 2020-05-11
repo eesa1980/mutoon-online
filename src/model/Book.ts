@@ -1,4 +1,12 @@
 export interface AllWordpressWpBooks {
+  group: BookGroup[];
+}
+
+export interface AllWordpressWpBooksUngrouped {
+  edges: BookEdge[];
+}
+
+interface BookGroup {
   edges: BookEdge[];
 }
 
@@ -23,6 +31,11 @@ interface Acf {
   book_title: string;
   cover_image?: Coverimage;
   page_number: number;
+  audio?: {
+    localFile: {
+      publicURL: string;
+    };
+  };
 }
 
 interface Coverimage {
