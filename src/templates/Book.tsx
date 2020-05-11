@@ -40,9 +40,18 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
   const onClickPlayToggle = () => {
     const setDispatch = (st: Status) => dispatch(setStatus(st));
 
-    audioState.status === Status.PLAYING
-      ? setDispatch(Status.STOPPED)
-      : setDispatch(Status.PLAYING);
+    switch (audioState.status) {
+      case Status.STOPPED:
+        audioHelper.playAudio();
+        setDispatch(Status.PLAYING);
+        break;
+      case Status.PLAYING:
+        setDispatch(Status.STOPPED);
+        break;
+
+      default:
+        break;
+    }
   };
 
   const onClickLoopToggle = () => {
@@ -54,12 +63,12 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
         break;
 
       case PlayType.LOOPING:
-        setDispatch(PlayType.CONTINUOUS);
-        break;
-
-      case PlayType.CONTINUOUS:
         setDispatch(PlayType.PLAY_ONCE);
         break;
+
+      // case PlayType.CONTINUOUS:
+      //   setDispatch(PlayType.PLAY_ONCE);
+      //   break;
 
       default:
         setDispatch(PlayType.PLAY_ONCE);
