@@ -27,7 +27,9 @@ import SearchIcon from "@material-ui/icons/Search";
 import { navigate, useStaticQuery } from "gatsby";
 import { groupBy } from "lodash-es";
 import * as React from "react";
+import { useDispatch } from "react-redux";
 import { AllWordpressCategory } from "../model/category";
+import { setPage } from "../redux/actions/audioActions";
 
 const drawerWidth = 240;
 
@@ -104,10 +106,11 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const Navbar = (props: any) => {
+const Navbar = React.forwardRef((props: any, searchRef) => {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+  const dispatch = useDispatch();
 
   const data: { allWordpressCategory: AllWordpressCategory } = useStaticQuery(
     navbarQuery
@@ -160,7 +163,10 @@ const Navbar = (props: any) => {
                     <ListItem
                       button
                       key={ii}
-                      onClick={() => navigate(edge.node.slug)}
+                      onClick={() => {
+                        dispatch(setPage(1));
+                        navigate(`${edge.node.slug}#page-1`);
+                      }}
                     >
                       <ListItemIcon>
                         <BookTwoToneIcon />{" "}
@@ -197,7 +203,10 @@ const Navbar = (props: any) => {
               <SearchIcon />
             </div>
             <InputBase
-              autoFocus={true}
+              id="navSearch"
+              ref={searchRef}
+              type="search"
+              autoFocus={false}
               fullWidth={true}
               onChange={props.onSearch}
               placeholder="Search book texts..."
@@ -225,7 +234,7 @@ const Navbar = (props: any) => {
       </nav>
     </>
   );
-};
+});
 
 export const navbarQuery = graphql`
   query NavbarQuery {

@@ -11,10 +11,10 @@ interface BookGroup {
 }
 
 export interface BookEdge {
-  node: Page;
+  node: BookPage;
 }
 
-export interface Page {
+export interface BookPage {
   wordpress_id: number;
   acf: Acf;
   slug: string;
@@ -30,7 +30,7 @@ interface Acf {
   english: string;
   book_title: string;
   cover_image?: Coverimage;
-  page_number: number;
+  page_number: number | string;
   audio?: {
     localFile: {
       publicURL: string;

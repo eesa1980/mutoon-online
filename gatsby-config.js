@@ -198,6 +198,7 @@ module.exports = {
         windowKey: "__PRELOADED_STATE__",
       },
     },
+
     // Add typescript stack into webpack
     `gatsby-plugin-typescript`,
   ],

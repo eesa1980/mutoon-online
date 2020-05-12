@@ -10,6 +10,7 @@ import {
 import debounce from "lodash-es/debounce";
 import "nprogress/nprogress.css";
 import * as React from "react";
+import { useEffect } from "react";
 import styled from "styled-components";
 import Navbar from "../components/Navbar";
 import Search from "../components/Search";
@@ -17,8 +18,6 @@ import SEO from "../components/Seo";
 import { compose } from "../util/compose";
 import { stripTashkeel } from "../util/stringModifiers";
 import "./index.css";
-
-const { description, keywords, name } = require("./../../package.json");
 
 interface DefaultLayoutProps extends React.HTMLProps<HTMLDivElement> {
   location?: {
@@ -34,6 +33,19 @@ const Background = styled.div`
 const DefaultLayout: React.FC<DefaultLayoutProps> = (props) => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const [searchVal, setSearchVal] = React.useState<string>("");
+
+  const searchRef = React.createRef();
+
+  useEffect(() => {
+    if (!searchVal) {
+      const searchEl: any = searchRef?.current;
+
+      if (searchEl) {
+        const el = searchEl.querySelector("#navSearch");
+        el.value = "";
+      }
+    }
+  }, [searchVal]);
 
   let theme: Theme = React.useMemo(
     () =>
@@ -78,8 +90,15 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = (props) => {
     <Background theme={theme}>
       <ThemeProvider theme={theme}>
         <SEO />
-        <Navbar onSearch={(e: any) => debounced(e.target.value)} />
-        {searchVal ? <Search searchVal={searchVal} /> : props.children}
+        <Navbar
+          onSearch={(e: any) => debounced(e.target.value)}
+          ref={searchRef}
+        />
+        {searchVal ? (
+          <Search searchVal={searchVal} setSearchVal={setSearchVal} />
+        ) : (
+          props.children
+        )}
       </ThemeProvider>
     </Background>
   );

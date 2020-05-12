@@ -1,13 +1,14 @@
 import { Container } from "@material-ui/core";
+import { navigate } from "@reach/router";
 import * as React from "react";
 import { Fragment, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import BookPage from "../components/BookPage";
 import BottomNav from "../components/BottomNav";
+import AudioPage from "../components/page-content/AudioPage";
 import Spinner from "../components/Spinner";
 import { useAudio } from "../hooks/useAudio";
 import DefaultLayout from "../layouts/DefaultLayout";
-import { Page } from "../model";
+import { BookPage } from "../model";
 import { setPage, setPlayType, setStatus } from "../redux/actions/audioActions";
 import { State } from "../redux/reducers";
 import { PlayType, Status } from "../redux/reducers/audioReducer";
@@ -15,7 +16,7 @@ import { PlayType, Status } from "../redux/reducers/audioReducer";
 interface IBookTemplate {
   pageContext: {
     title: string;
-    book: Page[];
+    book: BookPage[];
   };
   [key: string]: any;
 }
@@ -26,6 +27,8 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
   const audioHelper = useAudio(audioState, pageContext?.book);
 
   useEffect(() => {
+    dispatch(setPage(audioState.page));
+
     return () => {
       dispatch(setPage(1));
       dispatch(setPlayType(PlayType.PLAY_ONCE));
@@ -44,6 +47,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
       case Status.STOPPED:
         audioHelper.playAudio();
         setDispatch(Status.PLAYING);
+        navigate("#page-" + audioState.page);
         break;
       case Status.PLAYING:
         setDispatch(Status.STOPPED);
@@ -82,10 +86,9 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
         {pageContext?.book.map((page, i) => {
           return (
             <Fragment key={i}>
-              <BookPage
+              <AudioPage
                 page={page}
                 title={pageContext.title}
-                audioPlayer={audioHelper}
                 audioState={audioState}
                 dispatch={dispatch}
               />

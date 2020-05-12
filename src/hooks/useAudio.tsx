@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { Page } from "../model/book";
+import { BookPage } from "../model/book";
 import { setStatus } from "../redux/actions";
 import {
   setLoadingStatus,
@@ -11,7 +11,7 @@ import {
 import { State, Status } from "../redux/reducers";
 import { LoadingStatus, PlayType } from "../redux/reducers/audioReducer";
 
-export const useAudio = (audioState: State["audio"], book: Page[]) => {
+export const useAudio = (audioState: State["audio"], book: BookPage[]) => {
   const dispatch = useDispatch();
 
   /**

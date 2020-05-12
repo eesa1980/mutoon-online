@@ -1,17 +1,9 @@
-import {
-  Container,
-  ExpansionPanel,
-  ExpansionPanelDetails,
-  ExpansionPanelSummary,
-  Typography,
-  withTheme,
-} from "@material-ui/core";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { Container, Typography, withTheme } from "@material-ui/core";
 import { useStaticQuery } from "gatsby";
 import { cloneDeep, groupBy, orderBy } from "lodash-es";
 import escapeRegExp from "lodash-es/escapeRegExp";
 import * as React from "react";
-import { Fragment, useMemo } from "react";
+import { useMemo } from "react";
 import styled from "styled-components";
 import { AllWordpressCategory } from "../model";
 import { AllWordpressWpBooksUngrouped, BookEdge } from "../model/book";
@@ -23,19 +15,21 @@ import {
   stripHtml,
   stripTashkeel,
 } from "../util/stringModifiers";
-import BookPage from "./BookPage";
+import SearchAccordion from "./page-content/SearchAccordion";
 
-// Please note that you can use https://github.com/dotansimha/graphql-code-generator
-// to generate all types from graphQL schema
 interface SearchPageProps {
   searchVal: string;
+  setSearchVal: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const Root = withTheme(styled.div`
   margin-top: ${({ theme }) => theme.spacing(4)}px;
 `);
 
-const Search: React.FC<SearchPageProps> = ({ searchVal = "" }) => {
+const Search: React.FC<SearchPageProps> = ({
+  searchVal = "",
+  setSearchVal,
+}) => {
   const data: {
     allWordpressCategory: AllWordpressCategory;
     allWordpressWpMedia: AllWordpressWpMedia;
@@ -65,7 +59,15 @@ const Search: React.FC<SearchPageProps> = ({ searchVal = "" }) => {
     }
 
     const cloned = cloneDeep(data?.allWordpressWpBooks?.edges);
-    const filtered = cloned.filter(isMatch);
+
+    const filtered = cloned.filter(isMatch).map((edge) => {
+      edge.node.acf.page_number = parseInt(
+        edge.node.acf.page_number as string,
+        10
+      );
+      return edge;
+    });
+
     const ordered = orderBy(filtered, "node.acf.page_number", "asc");
     const grouped = groupBy(ordered, "node.acf.book_title");
 
@@ -107,33 +109,6 @@ const Search: React.FC<SearchPageProps> = ({ searchVal = "" }) => {
     [results]
   );
 
-  const Content = ({ edges }: { edges: BookEdge[] }) => (
-    <>
-      {edges.map((edge) => {
-        const { acf } = edge.node;
-
-        return (
-          <Fragment key={`${acf.book_title}-${acf.page_number}`}>
-            {acf.page_number > 0 ? (
-              <BookPage page={edge.node} title={acf.book_title} />
-            ) : (
-              <Fragment />
-            )}
-          </Fragment>
-        );
-      })}
-    </>
-  );
-
-  const Title = ({ title, count }: { title: string; count: number }) => (
-    <Typography component="div" variant="h6" color="textSecondary">
-      {title}:&nbsp;
-      <Typography component="strong" variant="h6" color="textPrimary">
-        {count}&nbsp;
-      </Typography>
-    </Typography>
-  );
-
   return (
     <Root>
       <Container maxWidth="sm">
@@ -155,20 +130,7 @@ const Search: React.FC<SearchPageProps> = ({ searchVal = "" }) => {
         <Hr />
         {results.length ? (
           results.map((item, i) => (
-            <Fragment key={i}>
-              <ExpansionPanel>
-                <ExpansionPanelSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1a-content"
-                  id="panel1a-header"
-                >
-                  <Title title={item.title} count={item.count} />
-                </ExpansionPanelSummary>
-                <ExpansionPanelDetails style={{ display: "block" }}>
-                  <Content edges={item.edges} />
-                </ExpansionPanelDetails>
-              </ExpansionPanel>
-            </Fragment>
+            <SearchAccordion key={i} book={item} setSearchVal={setSearchVal} />
           ))
         ) : (
           <>
