@@ -14,6 +14,9 @@ const useStyles = makeStyles({
     bottom: 0,
     left: 0,
     width: "100%",
+    height: "auto",
+    padding:
+      "env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)",
   },
 });
 
