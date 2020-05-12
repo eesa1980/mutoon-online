@@ -11,12 +11,11 @@ import { PlayType, State, Status } from "../redux/reducers";
 const useStyles = makeStyles({
   root: {
     position: "sticky",
+    paddingBottom: "env(safe-area-inset-bottom)",
     bottom: 0,
     left: 0,
     width: "100%",
-    height: "auto",
-    padding:
-      "env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)",
+    height: "calc(env(safe-area-inset-bottom) + 64px)",
   },
 });
 
