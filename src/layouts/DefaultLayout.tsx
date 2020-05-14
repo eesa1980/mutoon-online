@@ -22,6 +22,7 @@ import "./index.css";
 interface DefaultLayoutProps extends React.HTMLProps<HTMLDivElement> {
   location?: {
     pathname: string;
+    title: string;
   };
 }
 
@@ -89,7 +90,7 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = (props) => {
   return (
     <Background theme={theme}>
       <ThemeProvider theme={theme}>
-        <SEO />
+        <SEO title={props.title} />
         <Navbar
           onSearch={(e: any) => debounced(e.target.value)}
           ref={searchRef}

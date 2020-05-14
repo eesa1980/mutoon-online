@@ -1,9 +1,9 @@
 import * as React from "react";
 import { Dispatch } from "redux";
 import styled from "styled-components";
-import { setPage, setPlayType } from "../../redux/actions/audioActions";
+import { setPage, setStatus } from "../../redux/actions/audioActions";
 import { State } from "../../redux/reducers";
-import { LoadingStatus, PlayType } from "../../redux/reducers/audioReducer";
+import { LoadingStatus, Status } from "../../redux/reducers/audioReducer";
 import { PaperStyled, PaperStyledTitle } from "../../styled/PaperStyled";
 import Spinner from "../Spinner";
 import { PageProps } from "./Page";
@@ -18,7 +18,7 @@ interface AudioPageProps extends PageProps {
 
 const HashMarker = styled.span`
   position: absolute;
-  margin-top: -100px;
+  margin-top: 100px;
 `;
 
 const getWrapper = (index: number) =>
@@ -45,10 +45,7 @@ const AudioPage: React.FC<AudioPageProps> = ({
       onClick={() => {
         if (page_number > 0) {
           dispatch(setPage(page_number as number));
-
-          if (audioState.playType === PlayType.CONTINUOUS) {
-            dispatch(setPlayType(PlayType.CONTINUOUS_PAUSED));
-          }
+          dispatch(setStatus(Status.STOPPED));
         }
       }}
     >

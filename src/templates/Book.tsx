@@ -1,14 +1,14 @@
 import { Container } from "@material-ui/core";
-import { navigate } from "@reach/router";
 import * as React from "react";
-import { Fragment, useEffect } from "react";
+import { Fragment, useEffect, useState } from "react";
+import ReactPlayer from "react-player";
 import { useDispatch, useSelector } from "react-redux";
 import BottomNav from "../components/BottomNav";
 import AudioPage from "../components/page-content/AudioPage";
 import Spinner from "../components/Spinner";
-import { useAudio } from "../hooks/useAudio";
+import { useAudioHelper } from "../hooks/useAudioHelper";
 import DefaultLayout from "../layouts/DefaultLayout";
-import { BookPage } from "../model";
+import { BookPage, Category } from "../model";
 import { setPage, setPlayType, setStatus } from "../redux/actions/audioActions";
 import { State } from "../redux/reducers";
 import { PlayType, Status } from "../redux/reducers/audioReducer";
@@ -17,71 +17,62 @@ interface IBookTemplate {
   pageContext: {
     title: string;
     book: BookPage[];
+    offsets: Category["offsets"];
+    audio_file: string;
   };
   [key: string]: any;
 }
 
 const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
+  const [loopTimeout, setLoopTimeout] = useState(undefined);
   const audioState: State["audio"] = useSelector((state: State) => state.audio);
   const dispatch = useDispatch();
-  const audioHelper = useAudio(audioState, pageContext?.book);
+  const reactPlayerRef: React.RefObject<ReactPlayer> = React.useRef();
+
+  const cleanupTimeoutState = () => {
+    if (loopTimeout) {
+      clearTimeout(loopTimeout);
+      setLoopTimeout(undefined);
+    }
+  };
+
+  /**
+   * When page first loads
+   */
+  const onLoad = () => {
+    dispatch(setPage(audioState.page));
+    return onUnload;
+  };
+
+  /**
+   * Just before page unloads
+   */
+  const onUnload = () => {
+    dispatch(setPage(1));
+    dispatch(setPlayType(PlayType.PLAY_ONCE));
+    dispatch(setStatus(Status.STOPPED));
+    cleanupTimeoutState();
+  };
 
   useEffect(() => {
-    dispatch(setPage(audioState.page));
-
-    return () => {
-      dispatch(setPage(1));
-      dispatch(setPlayType(PlayType.PLAY_ONCE));
-      dispatch(setStatus(Status.STOPPED));
-    };
+    onLoad();
+    return onUnload;
   }, []);
 
-  if (!audioState || !audioHelper) {
+  if (!audioState) {
     return <Spinner />;
   }
 
-  const onClickPlayToggle = () => {
-    const setDispatch = (st: Status) => dispatch(setStatus(st));
-
-    switch (audioState.status) {
-      case Status.STOPPED:
-        audioHelper.playAudio();
-        setDispatch(Status.PLAYING);
-        navigate("#page-" + audioState.page);
-        break;
-      case Status.PLAYING:
-        setDispatch(Status.STOPPED);
-        break;
-
-      default:
-        break;
-    }
-  };
-
-  const onClickLoopToggle = () => {
-    const setDispatch = (type: PlayType) => dispatch(setPlayType(type));
-
-    switch (audioState.playType) {
-      case PlayType.PLAY_ONCE:
-        setDispatch(PlayType.LOOPING);
-        break;
-
-      case PlayType.LOOPING:
-        setDispatch(PlayType.PLAY_ONCE);
-        break;
-
-      // case PlayType.CONTINUOUS:
-      //   setDispatch(PlayType.PLAY_ONCE);
-      //   break;
-
-      default:
-        setDispatch(PlayType.PLAY_ONCE);
-        break;
-    }
-  };
+  const helper = useAudioHelper({
+    audioState,
+    reactPlayer: reactPlayerRef,
+    setLoopTimeout,
+    cleanupTimeoutState,
+    offsets: pageContext.offsets,
+  });
 
   return (
-    <DefaultLayout>
+    <DefaultLayout title={pageContext.title}>
       <Container maxWidth="sm">
         {pageContext?.book.map((page, i) => {
           return (
@@ -97,9 +88,21 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
         })}
       </Container>
       <BottomNav
-        onClickPlayHandler={onClickPlayToggle}
-        onClickLoopHandler={onClickLoopToggle}
+        onClickPlayHandler={helper.onClickPlayToggle}
+        onClickLoopHandler={helper.onClickLoopToggle}
         audioState={audioState}
+      />
+      <ReactPlayer
+        ref={reactPlayerRef}
+        url={pageContext.audio_file}
+        progressInterval={1000}
+        onProgress={helper.onProgressAudio}
+        height={0}
+        playing={audioState.status === Status.PLAYING}
+        onEnded={() => {
+          dispatch(setStatus(Status.STOPPED));
+          cleanupTimeoutState();
+        }}
       />
     </DefaultLayout>
   );

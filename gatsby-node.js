@@ -13,6 +13,10 @@ exports.createSchemaCustomization = ({ actions }) => {
       alt_text: String
       title: String
     }
+
+    type wordpress__CATEGORY implements Node @Infer {
+      offsets: String
+    }
   `;
 
   createTypes(typeDefs);
@@ -42,6 +46,14 @@ exports.createPages = async ({ graphql, actions }) => {
             }
             slug
             categories {
+              acf {
+                audio_file {
+                  localFile {
+                    publicURL
+                  }
+                }
+                offsets
+              }
               slug
               name
             }
@@ -59,10 +71,18 @@ exports.createPages = async ({ graphql, actions }) => {
 
     const ordered = orderBy(nodes, "acf.page_number", "asc");
 
+    const { name, acf } = ordered[0].categories[0];
+
     createPage({
       path: ordered[0].categories[0].slug,
       component: path.resolve(`./src/templates/Book.tsx`),
-      context: { title: ordered[0].categories[0].name, book: ordered },
+      context: {
+        title: name,
+        offsets: JSON.parse(acf.offsets),
+        book: ordered,
+        audio_file:
+          (acf.audio_file && acf.audio_file.localFile.publicURL) || "",
+      },
     });
   });
 };

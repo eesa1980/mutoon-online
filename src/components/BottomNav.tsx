@@ -2,6 +2,7 @@ import BottomNavigation from "@material-ui/core/BottomNavigation";
 import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
 import { makeStyles } from "@material-ui/core/styles";
 import Filter1Icon from "@material-ui/icons/Filter1";
+import ForwardIcon from "@material-ui/icons/Forward";
 import LoopIcon from "@material-ui/icons/Loop";
 import PauseIcon from "@material-ui/icons/Pause";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
@@ -38,17 +39,17 @@ const BottomNav: React.FC<{
       PlaytypeIcon = Filter1Icon;
       playTypeLabel = "Play once";
       break;
+
     case PlayType.LOOPING:
       PlaytypeIcon = LoopIcon;
       playTypeLabel = "Loop";
       break;
 
-    // case PlayType.CONTINUOUS:
-    // case PlayType.CONTINUOUS_PAUSED:
-    //   PlaytypeIcon = ForwardIcon;
-    //   playTypeLabel = "Continuous";
-
-    //   break;
+    case PlayType.CONTINUOUS:
+    case PlayType.CONTINUOUS_PAUSED:
+      PlaytypeIcon = ForwardIcon;
+      playTypeLabel = "Continuous";
+      break;
 
     default:
       break;
