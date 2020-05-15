@@ -2,8 +2,9 @@ import { applyMiddleware, combineReducers, compose, createStore } from "redux";
 import thunk from "redux-thunk";
 // @ts-ignore
 import { audioReducer } from "../reducers";
+import { userReducer } from "../reducers/userReducer";
 
-const reducer = combineReducers({ audio: audioReducer });
+const reducer = combineReducers({ audio: audioReducer, user: userReducer });
 
 // @ts-ignore
 // const devTools = window.__REDUX_DEVTOOLS_EXTENSION__;

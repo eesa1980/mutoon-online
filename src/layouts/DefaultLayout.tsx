@@ -1,4 +1,4 @@
-import { useMediaQuery } from "@material-ui/core";
+import { Button, useMediaQuery } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import teal from "@material-ui/core/colors/teal";
 import {
@@ -8,13 +8,24 @@ import {
   ThemeProvider,
 } from "@material-ui/core/styles";
 import debounce from "lodash-es/debounce";
+import { User } from "netlify-identity-widget";
 import "nprogress/nprogress.css";
 import * as React from "react";
 import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import Navbar from "../components/Navbar";
 import Search from "../components/Search";
 import SEO from "../components/Seo";
+import { setUser } from "../redux/actions";
+import { State } from "../redux/reducers";
+import {
+  getUser,
+  handleLogin,
+  initAuth,
+  isLoggedIn,
+  logout,
+} from "../service/auth";
 import { compose } from "../util/compose";
 import { stripTashkeel } from "../util/stringModifiers";
 import "./index.css";
@@ -34,6 +45,17 @@ const Background = styled.div`
 const DefaultLayout: React.FC<DefaultLayoutProps> = (props) => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const [searchVal, setSearchVal] = React.useState<string>("");
+  const dispatch = useDispatch();
+  const user = useSelector((state: State) => state.user);
+
+  const loggedIn = isLoggedIn();
+
+  const onLoad = () => {
+    initAuth();
+    dispatch(setUser(getUser()));
+  };
+
+  useEffect(onLoad, []);
 
   const searchRef = React.createRef();
 
@@ -89,6 +111,23 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = (props) => {
 
   return (
     <Background theme={theme}>
+      {!loggedIn ? (
+        <Button
+          onClick={() => {
+            handleLogin((usr: User) => dispatch(setUser(usr)));
+          }}
+        >
+          login
+        </Button>
+      ) : (
+        <Button
+          onClick={() => {
+            logout((usr: User) => dispatch(setUser(usr)));
+          }}
+        >
+          Logout
+        </Button>
+      )}
       <ThemeProvider theme={theme}>
         <SEO title={props.title} />
         <Navbar

@@ -1,4 +1,4 @@
-import { Container, Paper, Typography } from "@material-ui/core";
+import { Button, Container, Paper, Typography } from "@material-ui/core";
 import teal from "@material-ui/core/colors/teal";
 import { withTheme } from "@material-ui/styles";
 import GatsbyImage from "gatsby-image";
@@ -9,6 +9,7 @@ import DefaultLayout from "../layouts/DefaultLayout";
 import { AllWordpressCategory, AllWordpressWpBooks, Site } from "../model";
 import { Fluid } from "../model/fluid";
 import { AllWordpressWpMedia } from "../model/media";
+import { handleLogin, initAuth, isLoggedIn } from "../service/auth";
 import Hr from "../styled/Hr";
 
 // Please note that you can use https://github.com/dotansimha/graphql-code-generator
@@ -76,11 +77,15 @@ const Index: React.FC<IndexPageProps> = (props) => {
 
   return (
     <DefaultLayout>
+
+
       <HeroWrapper>
-        <HeroImage fluid={heroImage.fluid} />
-        <Logo>
-          <img src={logoImage.publicURL} />
-        </Logo>
+        {heroImage && <HeroImage fluid={heroImage.fluid} />}
+        {logoImage && (
+          <Logo>
+            <img src={logoImage.publicURL} />
+          </Logo>
+        )}
       </HeroWrapper>
       <Container maxWidth="xs">
         <Typography

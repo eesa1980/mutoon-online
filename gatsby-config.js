@@ -1,6 +1,5 @@
-require("dotenv").config();
-
 module.exports = {
+  // read more: https://www.gatsbyjs.org/docs/api-proxy/#advanced-proxying
   siteMetadata: {
     title: "Mutoon Online",
     titleTemplate: "%s · Mutoon Online Memorisation Tool",
@@ -11,6 +10,10 @@ module.exports = {
     twitterUsername: "@mutoon_online",
   },
   plugins: [
+    {
+      resolve: `gatsby-plugin-create-client-paths`,
+      options: { prefixes: [`/app/*`] },
+    },
     /*
      * Gatsby's data processing layer begins with “source”
      * plugins. Here the site sources its data from WordPress.
@@ -166,6 +169,14 @@ module.exports = {
       options: {
         name: `images`,
         path: `${__dirname}/src/images/`,
+      },
+      options: {
+        name: `data`,
+        path: `${__dirname}/src/json/`,
+      },
+      options: {
+        name: `audio`,
+        path: `${__dirname}/src/audio/`,
       },
     },
     `gatsby-plugin-sharp`,
