@@ -1,4 +1,4 @@
-import { Button, useMediaQuery } from "@material-ui/core";
+import { Button, Hidden, useMediaQuery } from "@material-ui/core";
 import { grey } from "@material-ui/core/colors";
 import teal from "@material-ui/core/colors/teal";
 import {
@@ -15,7 +15,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import Navbar from "../components/Navbar";
-import Search from "../components/Search";
+import Search from "../components/search/Search";
 import SEO from "../components/Seo";
 import { setUser } from "../redux/actions";
 import { State } from "../redux/reducers";
@@ -111,23 +111,25 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = (props) => {
 
   return (
     <Background theme={theme}>
-      {!loggedIn ? (
-        <Button
-          onClick={() => {
-            handleLogin((usr: User) => dispatch(setUser(usr)));
-          }}
-        >
-          login
-        </Button>
-      ) : (
-        <Button
-          onClick={() => {
-            logout((usr: User) => dispatch(setUser(usr)));
-          }}
-        >
-          Logout
-        </Button>
-      )}
+      <Hidden xsUp>
+        {!loggedIn ? (
+          <Button
+            onClick={() => {
+              handleLogin((usr: User) => dispatch(setUser(usr)));
+            }}
+          >
+            login
+          </Button>
+        ) : (
+          <Button
+            onClick={() => {
+              logout((usr: User) => dispatch(setUser(usr)));
+            }}
+          >
+            Logout
+          </Button>
+        )}
+      </Hidden>
       <ThemeProvider theme={theme}>
         <SEO title={props.title} />
         <Navbar

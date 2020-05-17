@@ -32,11 +32,13 @@ const PageText: React.FC<{
         <Hr />{" "}
       </>
     )}
-    <Typography component="span" variant="caption">
-      {parse(arabic)}
+    <Typography component="div" variant="caption" dir="rtl" align="right">
+      <p>{parse(arabic)}</p>
     </Typography>
     {page_number > 0 && <Hr />}
-    <Typography component="span">{parse(english)}</Typography>
+    <Typography component="div">
+      <p>{parse(english)}</p>
+    </Typography>
   </Wrapper>
 );
 

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Dispatch } from "redux";
 import styled from "styled-components";
+import { Content } from "../../model/book";
 import { setPage, setStatus } from "../../redux/actions/audioActions";
 import { State } from "../../redux/reducers";
 import { LoadingStatus, Status } from "../../redux/reducers/audioReducer";
@@ -11,14 +12,16 @@ import PageNumber from "./PageNumber";
 import PageText from "./PageText";
 
 interface AudioPageProps extends PageProps {
+  title: string;
+  page_number: number;
+  content: Content;
   audioState?: State["audio"];
-  audioPlayer?: any;
   dispatch: Dispatch<any>;
 }
 
 const HashMarker = styled.span`
   position: absolute;
-  margin-top: 100px;
+  margin-top: -110px;
 `;
 
 const getWrapper = (index: number) =>
@@ -26,13 +29,12 @@ const getWrapper = (index: number) =>
 
 const AudioPage: React.FC<AudioPageProps> = ({
   title,
-  page,
+  page_number,
+  content,
   audioState,
   dispatch,
 }) => {
-  const Wrapper = getWrapper(page?.acf.page_number as number);
-
-  const { page_number, arabic, english } = page.acf;
+  const Wrapper = getWrapper(page_number);
 
   return (
     <Wrapper
@@ -44,7 +46,7 @@ const AudioPage: React.FC<AudioPageProps> = ({
       }}
       onClick={() => {
         if (page_number > 0) {
-          dispatch(setPage(page_number as number));
+          dispatch(setPage(page_number));
           dispatch(setStatus(Status.STOPPED));
         }
       }}
@@ -55,9 +57,9 @@ const AudioPage: React.FC<AudioPageProps> = ({
       {page_number > 0 && <PageNumber page_number={page_number as number} />}
       <PageText
         title={title}
-        page_number={page_number as number}
-        arabic={arabic}
-        english={english}
+        page_number={page_number}
+        arabic={content.ar}
+        english={content.en}
       />
     </Wrapper>
   );

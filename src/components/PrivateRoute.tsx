@@ -7,8 +7,6 @@ const PrivateRoute = (props: any) => {
   const [loggedIn, setLoggedIn] = useState(false);
   const user = useSelector((state: State) => state.user);
 
-  console.log("props :>> ", props);
-
   if (user) {
     return <props.Component />;
   }

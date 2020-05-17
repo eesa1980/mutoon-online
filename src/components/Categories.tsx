@@ -5,19 +5,14 @@ import startCase from "lodash-es/startCase";
 import * as React from "react";
 import LazyLoad from "react-lazyload";
 import styled from "styled-components";
-import {
-  AllWordpressCategory,
-  AllWordpressWpMedia,
-  CategoryEdge,
-} from "../model";
+import { AllCategory, CategoryNode } from "../model/category";
 import NotFoundPage from "../pages/404";
 import Hr from "../styled/Hr";
 import Select, { SelectOption } from "./../components/Select";
 
 interface CategoriesProps {
   data: {
-    allWordpressCategory: AllWordpressCategory;
-    allWordpressWpMedia: AllWordpressWpMedia;
+    allCategory: AllCategory;
   };
 }
 
@@ -90,59 +85,47 @@ const HrStyled = withTheme(styled(Hr)`
 `);
 
 const Categories: React.FC<CategoriesProps> = ({ data }) => {
-  const [category, setCategory] = React.useState<number>(undefined);
-  const { allWordpressCategory, allWordpressWpMedia } = data;
+  const [category, setCategory] = React.useState<string>("all");
+  const { allCategory } = data;
 
-  if (!allWordpressCategory) {
+  if (!allCategory) {
     return <NotFoundPage />;
   }
 
   const categories: SelectOption[] = React.useMemo(() => {
-    const result = allWordpressCategory.edges
+    const dropdowns = allCategory.nodes
       ?.filter(
-        (edge: CategoryEdge) =>
-          edge.node.slug !== "unassigned" && !edge.node.wordpress_parent
+        (node: CategoryNode) => node.slug !== "unassigned" && !node.parent_id
       )
-      .map((edge: any) => ({
-        value: edge.node.wordpress_id,
-        text: edge.node.name,
+      .map((item: CategoryNode) => ({
+        value: item.id,
+        text: item.name,
       }));
 
-    result.unshift({
+    dropdowns.unshift({
       value: "all",
       text: "All",
     });
 
-    return result;
-  }, [allWordpressCategory]);
+    return dropdowns;
+  }, [allCategory]);
 
-  const books: SelectOption[] = React.useMemo(
+  const result = React.useMemo(
     () =>
-      allWordpressCategory.edges
-        ?.filter((edge: CategoryEdge) => {
-          if (category) {
-            return edge.node.wordpress_parent === category;
+      allCategory.nodes?.filter((node: CategoryNode) => {
+        if (node.parent_id) {
+          if (category === "all") {
+            return node.id;
           }
 
-          return edge.node.wordpress_parent;
-        })
-        .map((edge: CategoryEdge) => ({
-          value: edge.node.slug,
-          text: edge.node.name,
-        })),
+          return node.parent_id === category;
+        }
+      }),
     [category]
   );
 
-  const handleChange = {
-    category: (value: string) => {
-      setCategory(Number.parseInt(value, 10));
-    },
-  };
-
-  const imageUrl = (cat: string): any => {
-    return allWordpressWpMedia.nodes.find((img: any) => {
-      return startCase(cat) === startCase(img.categories[0].name);
-    }).localFile.childImageSharp.fluid;
+  const handleChange = (value: string) => {
+    setCategory(value);
   };
 
   return (
@@ -158,25 +141,26 @@ const Categories: React.FC<CategoriesProps> = ({ data }) => {
           defaultValue={"all"}
           id={"categories"}
           values={categories}
-          handleChange={handleChange.category}
+          handleChange={handleChange}
         />
       </Wrapper>
 
       <Buttons>
-        {books.map((item: SelectOption) => (
-          <LazyLoad height={200} key={item.value}>
+        {result.map((item) => (
+          <LazyLoad height={200} key={item.id}>
             <ButtonBaseStyled
               focusRipple
-              onClick={() => navigate(item.value)}
+              onClick={() => navigate(item.slug)}
               color={"primary"}
             >
-              {imageUrl(item.text) && (
-                <ImageStyled fluid={imageUrl(item.text)} />
+              {item.avatar?.childImageSharp && (
+                <ImageStyled fluid={item.avatar?.childImageSharp?.fluid} />
               )}
-              <TextStyled color="textPrimary" variant="h6">
-                {startCase(item.text)}
+              <TextStyled color="textPrimary" component="strong">
+                {startCase(item.name)}
                 <HrStyled className="hr" />
               </TextStyled>
+              <br />
             </ButtonBaseStyled>
           </LazyLoad>
         ))}

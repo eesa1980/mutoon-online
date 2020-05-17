@@ -3,7 +3,7 @@ import scrollIntoView from "smooth-scroll-into-view-if-needed";
 export const smoothScroll = (selector: string) => {
   scrollIntoView(document.querySelector(selector), {
     behavior: "smooth",
-    block: "center",
+    block: "start",
   });
 };
 

@@ -5,6 +5,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  ListSubheader,
 } from "@material-ui/core";
 import AppBar from "@material-ui/core/AppBar";
 import IconButton from "@material-ui/core/IconButton";
@@ -24,11 +25,10 @@ import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import HomeIcon from "@material-ui/icons/Home";
 import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
-import { navigate, useStaticQuery } from "gatsby";
-import { groupBy } from "lodash-es";
+import { graphql, navigate, useStaticQuery } from "gatsby";
 import * as React from "react";
 import { useDispatch } from "react-redux";
-import { AllWordpressCategory } from "../model/category";
+import { AllCategory, CategoryNode } from "../model/category";
 import { setPage } from "../redux/actions/audioActions";
 
 const drawerWidth = 240;
@@ -112,17 +112,25 @@ const Navbar = React.forwardRef((props: any, searchRef) => {
   const [open, setOpen] = React.useState(false);
   const dispatch = useDispatch();
 
-  const data: { allWordpressCategory: AllWordpressCategory } = useStaticQuery(
-    navbarQuery
-  );
+  const data: { allCategory: AllCategory } = useStaticQuery(navbarQuery);
 
   const handleDrawerToggle = () => {
     setOpen(!open);
   };
 
-  const grouped = groupBy(
-    data.allWordpressCategory.edges,
-    "node.parent_element.name"
+  const grouped = React.useCallback(
+    (parentId: string) => {
+      const arr: CategoryNode[] = [];
+
+      data.allCategory.group.forEach((group) =>
+        group.nodes.forEach(
+          (item) => item.parent_id === parentId && arr.push(item)
+        )
+      );
+
+      return arr;
+    },
+    [data.allCategory.group]
   );
 
   const drawer = (
@@ -146,39 +154,30 @@ const Navbar = React.forwardRef((props: any, searchRef) => {
         </ListItem>
       </List>
       <Divider />
-      {Object.entries(grouped)
-        .filter((item) => item[0] !== "undefined")
-        .map((group, index) => {
-          const [title, edges] = group;
-
-          return (
-            <List key={index}>
-              <ListItem>
-                <ListItemText primary={title} />
-              </ListItem>
-              {edges
-                .filter((item) => item.node?.parent_element?.name === title)
-                .map((edge, ii) => {
-                  return (
-                    <ListItem
-                      button
-                      key={ii}
-                      onClick={() => {
-                        dispatch(setPage(1));
-                        navigate(`${edge.node.slug}#page-1`);
-                      }}
-                    >
-                      <ListItemIcon>
-                        <BookTwoToneIcon />{" "}
-                      </ListItemIcon>
-                      <ListItemText primary={edge.node.name} />
-                    </ListItem>
-                  );
-                })}
-              <Divider />
+      {data.allCategory.group[0].nodes.map((parent, i) => {
+        return (
+          parent.slug !== "unassigned" && (
+            <List key={i}>
+              <ListSubheader>{parent.name}</ListSubheader>
+              {grouped(parent.id)?.map((item, ii) => (
+                <ListItem
+                  button
+                  key={ii}
+                  onClick={() => {
+                    dispatch(setPage(1));
+                    navigate(`${item.slug}#page-1`);
+                  }}
+                >
+                  <ListItemIcon>
+                    <BookTwoToneIcon />{" "}
+                  </ListItemIcon>
+                  <ListItemText primary={item.name} />
+                </ListItem>
+              ))}
             </List>
-          );
-        })}
+          )
+        );
+      })}
     </div>
   );
 
@@ -238,16 +237,13 @@ const Navbar = React.forwardRef((props: any, searchRef) => {
 
 export const navbarQuery = graphql`
   query NavbarQuery {
-    allWordpressCategory {
-      edges {
-        node {
+    allCategory {
+      group(field: parent_id) {
+        nodes {
           name
-          wordpress_parent
           slug
-          wordpress_id
-          parent_element {
-            name
-          }
+          id
+          parent_id
         }
       }
     }

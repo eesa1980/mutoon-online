@@ -1,44 +1,17 @@
-export interface AllWordpressWpBooks {
-  group: BookGroup[];
+export interface AllBook {
+  nodes: BookNode[];
 }
 
-export interface AllWordpressWpBooksUngrouped {
-  edges: BookEdge[];
-}
-
-interface BookGroup {
-  edges: BookEdge[];
-}
-
-export interface BookEdge {
-  node: BookPage;
-}
-
-export interface BookPage {
-  wordpress_id: number;
-  acf: Acf;
+export interface BookNode {
+  category_id: string;
+  id: string;
   slug: string;
-  categories: Category[];
+  title: string;
+  content: Content[];
 }
 
-interface Category {
-  slug: string;
-}
-
-interface Acf {
-  arabic: string;
-  english: string;
-  book_title: string;
-  cover_image?: Coverimage;
-  page_number: number | string;
-  audio?: {
-    localFile: {
-      publicURL: string;
-    };
-  };
-}
-
-interface Coverimage {
-  alt: string;
-  url: string;
+export interface Content {
+  ar: string;
+  en: string;
+  page_number?: number;
 }
