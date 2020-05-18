@@ -46,7 +46,7 @@ export const setPage = (page: number) => {
 
 export const setLoadingStatus = (loadingStatus: LoadingStatus) => {
   return {
-    type: SET_PAGE,
+    type: SET_LOADING,
     payload: {
       loadingStatus,
     },

@@ -1,7 +1,6 @@
 import debounce from "lodash-es/debounce";
 import ReactPlayer from "react-player";
 import { useDispatch } from "react-redux";
-import { AudioNode } from "../model/audio";
 import { setPage, setPlayType, setStatus } from "../redux/actions";
 import { PlayType, State, Status } from "../redux/reducers";
 import { smoothPageScroll } from "../util/smoothScroll";
@@ -22,7 +21,6 @@ export const useAudioHelper = ({
   audioState,
   reactPlayer,
   setLoopTimeout,
-  cleanupTimeoutState,
   offsets,
 }: PropTypes) => {
   const dispatch = useDispatch();
@@ -72,7 +70,6 @@ export const useAudioHelper = ({
         playAudio();
         break;
       case Status.PLAYING:
-        cleanupTimeoutState();
         dispatch(setStatus(Status.STOPPED));
         break;
 
@@ -87,19 +84,16 @@ export const useAudioHelper = ({
   const onClickLoopToggle = () => {
     switch (audioState.playType) {
       case PlayType.PLAY_ONCE:
-        cleanupTimeoutState();
         dispatch(setPlayType(PlayType.LOOPING));
         dispatch(setStatus(Status.STOPPED));
         break;
 
       case PlayType.LOOPING:
-        cleanupTimeoutState();
         dispatch(setPlayType(PlayType.CONTINUOUS));
         dispatch(setStatus(Status.STOPPED));
         break;
 
       case PlayType.CONTINUOUS:
-        cleanupTimeoutState();
         dispatch(setPlayType(PlayType.PLAY_ONCE));
         dispatch(setStatus(Status.STOPPED));
         break;

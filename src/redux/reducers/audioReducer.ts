@@ -27,7 +27,6 @@ export enum Status {
   PLAYING = "playing",
   STOPPED = "stopped",
   PAUSED = "paused",
-  CONTINUING = "continuing",
   INACTIVE = "inactive",
   ERROR = "error",
 }
@@ -36,7 +35,6 @@ export enum PlayType {
   PLAY_ONCE = "play-once",
   LOOPING = "looping",
   CONTINUOUS = "continuous",
-  CONTINUOUS_PAUSED = "continuous_paused",
 }
 
 export enum LoadingStatus {
@@ -51,7 +49,7 @@ const INITIAL_STATE: State["audio"] = {
   player,
   page: 1,
   src: "",
-  playType: PlayType.PLAY_ONCE,
+  playType: PlayType.LOOPING,
   status: Status.INACTIVE,
   loadingStatus: LoadingStatus.INACTIVE,
 };

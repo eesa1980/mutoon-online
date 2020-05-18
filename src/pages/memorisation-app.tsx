@@ -110,7 +110,7 @@ const Index: React.FC<IndexPageProps> = (props) => {
 };
 
 export const pageQuery = graphql`
-  query IndexQuery {
+  query MemorisationPageQuery {
     site {
       siteMetadata {
         title

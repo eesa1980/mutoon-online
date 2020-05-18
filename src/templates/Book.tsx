@@ -11,9 +11,18 @@ import { useAudioHelper } from "../hooks/useAudioHelper";
 import DefaultLayout from "../layouts/DefaultLayout";
 import { AllAudio, AudioNode } from "../model/audio";
 import { BookNode } from "../model/book";
-import { setPage, setPlayType, setStatus } from "../redux/actions/audioActions";
+import {
+  setLoadingStatus,
+  setPage,
+  setPlayType,
+  setStatus,
+} from "../redux/actions/audioActions";
 import { State } from "../redux/reducers";
-import { PlayType, Status } from "../redux/reducers/audioReducer";
+import {
+  LoadingStatus,
+  PlayType,
+  Status,
+} from "../redux/reducers/audioReducer";
 import { smoothPageScroll } from "../util/smoothScroll";
 
 interface IBookTemplate {
@@ -40,6 +49,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
    */
   const onLoad = () => {
     dispatch(setPage(audioState.page));
+    dispatch(setLoadingStatus(LoadingStatus.LOADING));
     setTimeout(() => smoothPageScroll(audioState.page), 500);
     return onUnload;
   };
@@ -51,6 +61,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
     dispatch(setPage(1));
     dispatch(setPlayType(PlayType.PLAY_ONCE));
     dispatch(setStatus(Status.STOPPED));
+    dispatch(setLoadingStatus(LoadingStatus.INACTIVE));
     cleanupTimeoutState();
   };
 
@@ -61,12 +72,21 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
 
   useEffect(() => {
     cleanupTimeoutState();
-  }, [audioState.page]);
+  }, [
+    audioState.page,
+    audioState.loadingStatus,
+    audioState.playType,
+    audioState.src,
+  ]);
 
   const { allAudio } = useStaticQuery(query);
 
   if (!audioState) {
-    return <Spinner />;
+    return (
+      <DefaultLayout>
+        <Spinner />
+      </DefaultLayout>
+    );
   }
 
   const audio = allAudio?.nodes.find(
@@ -81,40 +101,45 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
     offsets: JSON.parse(audio?.offset || "{}"),
   });
 
+  console.log("audioState. :>> ", audioState.player);
+
   return (
-    <DefaultLayout title={pageContext.title}>
-      <Container maxWidth="sm">
-        {pageContext?.content.map((con, i) => {
-          return (
-            <AudioPage
-              key={i}
-              page_number={i}
-              content={con}
-              title={pageContext.title}
-              audioState={audioState}
-              dispatch={dispatch}
-            />
-          );
-        })}
-      </Container>
-      <BottomNav
-        onClickPlayHandler={helper.onClickPlayToggle}
-        onClickLoopHandler={helper.onClickLoopToggle}
-        audioState={audioState}
-      />
-      <ReactPlayer
-        ref={reactPlayerRef}
-        url={audio?.src?.publicURL}
-        progressInterval={1000}
-        onProgress={helper.onProgressAudio}
-        height={0}
-        playing={audioState.status === Status.PLAYING}
-        onEnded={() => {
-          dispatch(setStatus(Status.STOPPED));
-          cleanupTimeoutState();
-        }}
-      />
-    </DefaultLayout>
+    <>
+      <DefaultLayout title={pageContext.title}>
+        <Container maxWidth="sm">
+          {pageContext?.content.map((con, i) => {
+            return (
+              <AudioPage
+                key={i}
+                page_number={i}
+                content={con}
+                title={pageContext.title}
+                audioState={audioState}
+                dispatch={dispatch}
+              />
+            );
+          })}
+        </Container>
+        <BottomNav
+          onClickPlayHandler={helper.onClickPlayToggle}
+          onClickLoopHandler={helper.onClickLoopToggle}
+          audioState={audioState}
+        />
+        <ReactPlayer
+          onReady={() => dispatch(setLoadingStatus(LoadingStatus.READY))}
+          ref={reactPlayerRef}
+          url={audio?.src?.publicURL}
+          progressInterval={1000}
+          onProgress={helper.onProgressAudio}
+          height={0}
+          playing={audioState.status === Status.PLAYING}
+          onEnded={() => {
+            dispatch(setStatus(Status.STOPPED));
+            cleanupTimeoutState();
+          }}
+        />
+      </DefaultLayout>
+    </>
   );
 };
 
