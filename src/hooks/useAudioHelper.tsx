@@ -1,8 +1,13 @@
 import debounce from "lodash-es/debounce";
 import ReactPlayer from "react-player";
 import { useDispatch } from "react-redux";
-import { setPage, setPlayType, setStatus } from "../redux/actions";
-import { PlayType, State, Status } from "../redux/reducers";
+import {
+  setLoadingStatus,
+  setPage,
+  setPlayType,
+  setStatus,
+} from "../redux/actions";
+import { LoadingStatus, PlayType, State, Status } from "../redux/reducers";
 import { smoothPageScroll } from "../util/smoothScroll";
 
 interface IOffset {
@@ -108,6 +113,10 @@ export const useAudioHelper = ({
    */
   const onProgressAudio = debounce(
     (e: any) => {
+      if (audioState.loadingStatus !== LoadingStatus.READY) {
+        dispatch(setLoadingStatus(LoadingStatus.READY));
+      }
+
       if (
         audioState.playType === PlayType.CONTINUOUS &&
         audioState.status === Status.PLAYING

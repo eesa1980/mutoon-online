@@ -124,7 +124,6 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
           audioState={audioState}
         />
         <ReactPlayer
-          onReady={() => dispatch(setLoadingStatus(LoadingStatus.READY))}
           ref={reactPlayerRef}
           url={audio?.src?.publicURL}
           progressInterval={1000}
