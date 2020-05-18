@@ -1,17 +1,21 @@
 import debounce from "lodash-es/debounce";
 import ReactPlayer from "react-player";
 import { useDispatch } from "react-redux";
-import { Category } from "../model";
+import { AudioNode } from "../model/audio";
 import { setPage, setPlayType, setStatus } from "../redux/actions";
 import { PlayType, State, Status } from "../redux/reducers";
 import { smoothPageScroll } from "../util/smoothScroll";
+
+interface IOffset {
+  [key: string]: number[];
+}
 
 interface PropTypes {
   audioState: State["audio"];
   reactPlayer: React.RefObject<ReactPlayer>;
   setLoopTimeout: React.Dispatch<any>;
   cleanupTimeoutState: () => void;
-  offsets: Category["offsets"];
+  offsets: IOffset;
 }
 
 export const useAudioHelper = ({
@@ -116,7 +120,7 @@ export const useAudioHelper = ({
       ) {
         // Find all offset times lower than the amount of time audio has elapsed
         const filtered: number[] = Object.values(offsets)
-          .map((offset) => offset[0])
+          .map((offset: any[]) => offset[0])
           .filter((offset) => offset < e.playedSeconds * 1000);
 
         // Then get the highest time

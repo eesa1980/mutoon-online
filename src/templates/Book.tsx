@@ -57,11 +57,16 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
     return onUnload;
   }, []);
 
+  useEffect(() => {
+    cleanupTimeoutState();
+  }, [audioState.page]);
+
   const { allAudio } = useStaticQuery(query);
 
   if (!audioState) {
     return <Spinner />;
   }
+
   const audio = allAudio?.nodes.find(
     (node: AudioNode) => node.book_id === pageContext.id
   );
