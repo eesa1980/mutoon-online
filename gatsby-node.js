@@ -10,12 +10,14 @@ require("dotenv").config({
   path: `.env.${activeEnv}`,
 });
 
+const S3_URL = "https://mhgtpodef7.execute-api.eu-west-2.amazonaws.com/dev/";
+
 exports.createPages = async ({ graphql, actions }) => {
   // **Note:** The graphql function call returns a Promise
   // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise for more info
   const { createPage } = actions;
 
-  const books = await fetch(`${process.env.GATSBY_API_URL}/book`);
+  const books = await fetch(S3_URL + "book");
 
   const { data } = await books.json();
 
@@ -75,7 +77,7 @@ exports.sourceNodes = async ({
 }) => {
   const createNodes = async (...endpoints) => {
     for (const endpoint of endpoints) {
-      const result = await fetch(`${process.env.GATSBY_API_URL}/${endpoint}`);
+      const result = await fetch(S3_URL + endpoint);
       const { data } = await result.json();
 
       data.forEach((item) => {
