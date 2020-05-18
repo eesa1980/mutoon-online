@@ -101,8 +101,6 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
     offsets: JSON.parse(audio?.offset || "{}"),
   });
 
-  console.log("audioState. :>> ", audioState.player);
-
   return (
     <>
       <DefaultLayout title={pageContext.title}>
