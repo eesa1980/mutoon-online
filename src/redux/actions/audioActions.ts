@@ -8,7 +8,7 @@ export const PAUSE_AUDIO = "PAUSE_AUDIO";
 export const STOP_AUDIO = "STOP_AUDIO";
 export const SET_STATUS = "SET_STATUS";
 export const SET_PAGE = "SET_PAGE";
-export const SET_LOADING = "SET_AUDIO";
+export const SET_LOADING_STATUS = "SET_LOADING_STATUS";
 
 export const setSrc = (src: string) => {
   return {
@@ -46,7 +46,7 @@ export const setPage = (page: number) => {
 
 export const setLoadingStatus = (loadingStatus: LoadingStatus) => {
   return {
-    type: SET_LOADING,
+    type: SET_LOADING_STATUS,
     payload: {
       loadingStatus,
     },

@@ -2,6 +2,7 @@ import { User } from "netlify-identity-widget";
 import {
   PAUSE_AUDIO,
   PLAY_AUDIO,
+  SET_LOADING_STATUS,
   SET_PAGE,
   SET_PLAY_TYPE,
   SET_SRC,
@@ -63,6 +64,7 @@ export const audioReducer = (state = INITIAL_STATE, action: any) => {
     case SET_STATUS:
     case SET_PAGE:
     case SET_PLAY_TYPE:
+    case SET_LOADING_STATUS:
       return {
         ...state,
         ...action.payload,

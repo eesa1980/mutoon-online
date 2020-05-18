@@ -46,7 +46,6 @@ const BottomNav: React.FC<{
       break;
 
     case PlayType.CONTINUOUS:
-    case PlayType.CONTINUOUS_PAUSED:
       PlaytypeIcon = ForwardIcon;
       playTypeLabel = "Continuous";
       break;
