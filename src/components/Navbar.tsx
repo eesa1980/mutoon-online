@@ -29,7 +29,7 @@ import { graphql, navigate, useStaticQuery } from "gatsby";
 import * as React from "react";
 import { useDispatch } from "react-redux";
 import { AllCategory, CategoryNode } from "../model/category";
-import { setPage } from "../redux/actions/audioActions";
+import { setPage } from "../redux/actions";
 
 const drawerWidth = 240;
 
@@ -109,7 +109,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const Navbar = React.forwardRef((props: any, searchRef) => {
   const classes = useStyles();
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState<boolean>(false);
   const dispatch = useDispatch();
 
   const data: { allCategory: AllCategory } = useStaticQuery(navbarQuery);
@@ -133,6 +133,8 @@ const Navbar = React.forwardRef((props: any, searchRef) => {
     [data.allCategory.group]
   );
 
+  const isActivePage = (slug: string) => props.location.pathname.includes(slug);
+
   const drawer = (
     <div>
       <div className={classes.drawerHeader}>
@@ -146,7 +148,11 @@ const Navbar = React.forwardRef((props: any, searchRef) => {
       </div>
       <Divider />
       <List>
-        <ListItem button onClick={() => navigate("/")}>
+        <ListItem
+          button
+          onClick={() => navigate("/")}
+          selected={props.location.pathname === "/"}
+        >
           <ListItemIcon>
             <HomeIcon />{" "}
           </ListItemIcon>
@@ -161,11 +167,16 @@ const Navbar = React.forwardRef((props: any, searchRef) => {
               <ListSubheader>{parent.name}</ListSubheader>
               {grouped(parent.id)?.map((item, ii) => (
                 <ListItem
+                  selected={isActivePage(item.slug)}
                   button
                   key={ii}
                   onClick={() => {
-                    dispatch(setPage(1));
-                    navigate(`${item.slug}#page-1`);
+                    if (!isActivePage(item.slug)) {
+                      navigate(item.slug);
+                      dispatch(setPage(1));
+                    }
+
+                    setOpen(false);
                   }}
                 >
                   <ListItemIcon>

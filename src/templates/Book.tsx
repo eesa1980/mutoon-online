@@ -14,6 +14,7 @@ import { BookNode } from "../model/book";
 import { setPage, setPlayType, setStatus } from "../redux/actions/audioActions";
 import { State } from "../redux/reducers";
 import { PlayType, Status } from "../redux/reducers/audioReducer";
+import { smoothPageScroll } from "../util/smoothScroll";
 
 interface IBookTemplate {
   pageContext: BookNode;
@@ -39,6 +40,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
    */
   const onLoad = () => {
     dispatch(setPage(audioState.page));
+    setTimeout(() => smoothPageScroll(audioState.page), 500);
     return onUnload;
   };
 

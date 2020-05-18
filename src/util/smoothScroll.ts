@@ -1,17 +1,19 @@
 import scrollIntoView from "smooth-scroll-into-view-if-needed";
 
-export const smoothScroll = (selector: string) => {
+export const smoothScroll = (
+  selector: string,
+  position: ScrollLogicalPosition = "start"
+) => {
   scrollIntoView(document.querySelector(selector), {
     behavior: "smooth",
-    block: "start",
+    block: position,
   });
 };
 
-export const smoothPageScroll = (page: number) => {
+export const smoothPageScroll = (
+  page: number,
+  position: ScrollLogicalPosition = "start"
+) => {
   const selector = `#page-${page}`;
-  const offset = document.querySelector(selector).getBoundingClientRect();
-
-  if (offset.top > window.innerHeight / 2) {
-    smoothScroll(selector);
-  }
+  smoothScroll(selector, position);
 };

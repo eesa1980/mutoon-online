@@ -29,8 +29,8 @@ const Content = ({
           <ButtonBase
             onClick={() => {
               setSearchVal("");
-              dispatch(setPage(content.page_number as number));
-              navigate(`${book.slug}#page-${content.page_number}`);
+              dispatch(setPage(content.page_number));
+              navigate(`${book.slug}`);
             }}
             key={`${book.title}-${i}`}
             title={`Go to page ${content.page_number} of ${book.title}`}
@@ -71,8 +71,8 @@ const SearchAccordion: React.FC<{
   <ExpansionPanel>
     <ExpansionPanelSummary
       expandIcon={<ExpandMoreIcon />}
-      aria-controls="panel1a-content"
-      id="panel1a-header"
+      aria-controls="panel-content"
+      id="panel-header"
     >
       <Title title={result.book.title} count={result.count} />
     </ExpansionPanelSummary>
