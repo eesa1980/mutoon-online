@@ -14,15 +14,15 @@ export interface PageProps {
 const getWrapper = (index: number) =>
   index > 0 ? PaperStyled : PaperStyledTitle;
 
-const Page: React.FC<PageProps> = ({ page_number: pageNumber, id, title, content }) => {
-  const Wrapper = getWrapper(pageNumber as number);
+const Page: React.FC<PageProps> = ({ page_number, id, title, content }) => {
+  const Wrapper = getWrapper(page_number);
 
   return (
-    <Wrapper id={id} elevation={pageNumber > 1 ? 3 : 0}>
-      {pageNumber > 0 && <PageNumber page_number={pageNumber as number} />}
+    <Wrapper id={id} elevation={page_number >= 1 ? 3 : 0}>
+      {page_number > 0 && <PageNumber page_number={page_number} />}
       <PageText
         title={title}
-        page_number={pageNumber}
+        page_number={page_number}
         arabic={content.ar}
         english={content.en}
       />

@@ -1,11 +1,12 @@
 import { Container, Typography, withTheme } from "@material-ui/core";
 import { graphql, useStaticQuery } from "gatsby";
+import { cloneDeep } from "lodash-es";
 import * as React from "react";
 import styled from "styled-components";
 import { AllBook, BookNode } from "../../model/book";
 import Hr from "../../styled/Hr";
 import SearchAccordion from "../page-content/SearchAccordion";
-import { SearchHelper } from "./helper";
+import { ContentProcessor } from "./ContentProcessor";
 
 interface SearchPageProps {
   searchVal: string;
@@ -38,11 +39,9 @@ const Search: React.FC<SearchPageProps> = ({
       return [{ book: undefined, count: 0 }];
     }
 
-    const helper = SearchHelper(searchVal);
+    const cp = ContentProcessor(searchVal);
 
-    return data.allBook.nodes
-      .map(helper.process.content)
-      .map(helper.process.accordionData);
+    return cloneDeep(data.allBook.nodes).map(cp.processContent);
   }, [searchVal]);
 
   const total = results.reduce((i: number, res: Results) => i + res.count, 0);
