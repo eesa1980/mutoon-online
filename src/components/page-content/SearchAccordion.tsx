@@ -9,41 +9,38 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { navigate } from "gatsby";
 import * as React from "react";
 import { useDispatch } from "react-redux";
-import { BookEdge } from "../../model";
+import { BookNode } from "../../model/book";
 import { setPage } from "../../redux/actions/audioActions";
 import Page from "./Page";
 
 const Content = ({
-  edges,
+  book,
   setSearchVal,
 }: {
-  edges: BookEdge[];
+  book: BookNode;
   setSearchVal: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   const dispatch = useDispatch();
 
   return (
     <>
-      {edges.map((edge) => {
-        const { acf } = edge.node;
-
+      {book.content.map((content, i) => {
         return (
           <ButtonBase
             onClick={() => {
               setSearchVal("");
-              dispatch(setPage(acf.page_number as number));
-              navigate(
-                `${edge.node.categories[0].slug}#page-${acf.page_number}`
-              );
+              dispatch(setPage(content.page_number));
+              navigate(`${book.slug}`);
             }}
-            key={`${acf.book_title}-${acf.page_number}`}
-            title={`Go to page ${acf.page_number} of ${acf.book_title}`}
+            key={`${book.title}-${i}`}
+            title={`Go to page ${content.page_number} of ${book.title}`}
           >
-            {acf.page_number > 0 ? (
+            {content.page_number ? (
               <Page
-                page={edge.node}
-                title={acf.book_title}
-                id={`page-${acf.page_number}`}
+                page_number={content.page_number}
+                content={content}
+                title={book.title}
+                id={`page-${content.page_number}`}
               />
             ) : (
               <></>
@@ -65,23 +62,22 @@ const Title = ({ title, count }: { title: string; count: number }) => (
 );
 
 const SearchAccordion: React.FC<{
-  book: {
-    title: string;
-    edges: BookEdge[];
+  result: {
+    book: BookNode;
     count: number;
   };
   setSearchVal: React.Dispatch<React.SetStateAction<string>>;
-}> = ({ book, setSearchVal }) => (
+}> = ({ result, setSearchVal }) => (
   <ExpansionPanel>
     <ExpansionPanelSummary
       expandIcon={<ExpandMoreIcon />}
-      aria-controls="panel1a-content"
-      id="panel1a-header"
+      aria-controls="panel-content"
+      id="panel-header"
     >
-      <Title title={book.title} count={book.count} />
+      <Title title={result.book.title} count={result.count} />
     </ExpansionPanelSummary>
     <ExpansionPanelDetails style={{ display: "block" }}>
-      <Content edges={book.edges} setSearchVal={setSearchVal} />
+      <Content book={result.book} setSearchVal={setSearchVal} />
     </ExpansionPanelDetails>
   </ExpansionPanel>
 );

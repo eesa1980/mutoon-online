@@ -1,23 +1,23 @@
 import { Container, Paper, Typography } from "@material-ui/core";
 import teal from "@material-ui/core/colors/teal";
 import { withTheme } from "@material-ui/styles";
+import { graphql } from "gatsby";
 import GatsbyImage from "gatsby-image";
 import * as React from "react";
 import styled from "styled-components";
 import Categories from "../components/Categories";
 import DefaultLayout from "../layouts/DefaultLayout";
-import { AllWordpressCategory, AllWordpressWpBooks, Site } from "../model";
-import { Fluid } from "../model/fluid";
-import { AllWordpressWpMedia } from "../model/media";
+import { AllCategory, Site } from "../model";
+import { Fluid } from "../model/image";
 import Hr from "../styled/Hr";
 
 // Please note that you can use https://github.com/dotansimha/graphql-code-generator
 // to generate all types from graphQL schema
 interface IndexPageProps {
   data: {
-    allWordpressCategory: AllWordpressCategory;
-    allWordpressWpMedia: AllWordpressWpMedia;
-    allWordpressWpBooks: AllWordpressWpBooks;
+    allCategory: AllCategory;
+    // allWordpressWpMedia: AllWordpressWpMedia;
+    // allWordpressWpBooks: AllWordpressWpBooks;
     imageSharp: {
       fluid: Fluid;
     };
@@ -68,43 +68,46 @@ const Logo = withTheme(styled.div`
 const Index: React.FC<IndexPageProps> = (props) => {
   const {
     file: logoImage,
-    allWordpressCategory,
-    allWordpressWpMedia,
+    allCategory,
     site,
     imageSharp: heroImage,
   } = props.data;
 
   return (
-    <DefaultLayout>
-      <HeroWrapper>
-        <HeroImage fluid={heroImage.fluid} />
-        <Logo>
-          <img src={logoImage.publicURL} />
-        </Logo>
-      </HeroWrapper>
-      <Container maxWidth="xs">
-        <Typography
-          component="h1"
-          variant="h4"
-          color="textPrimary"
-          align="center"
-        >
-          <p>{site.siteMetadata.title}</p>
-        </Typography>
-        <Hr />
-        <Typography
-          component="h2"
-          variant="body1"
-          color="textSecondary"
-          align="center"
-        >
-          <p>{site.siteMetadata.description}</p>
-        </Typography>
-      </Container>
-      <Container maxWidth="sm">
-        <Categories data={{ allWordpressCategory, allWordpressWpMedia }} />
-      </Container>
-    </DefaultLayout>
+    <>
+      <DefaultLayout>
+        <HeroWrapper>
+          {heroImage && <HeroImage fluid={heroImage.fluid} />}
+          {logoImage && (
+            <Logo>
+              <img src={logoImage.publicURL} />
+            </Logo>
+          )}
+        </HeroWrapper>
+        <Container maxWidth="xs">
+          <Typography
+            component="h1"
+            variant="h4"
+            color="textPrimary"
+            align="center"
+          >
+            <p>{site.siteMetadata.title}</p>
+          </Typography>
+          <Hr />
+          <Typography
+            component="h2"
+            variant="body1"
+            color="textSecondary"
+            align="center"
+          >
+            <p>{site.siteMetadata.description}</p>
+          </Typography>
+        </Container>
+        <Container maxWidth="sm">
+          <Categories data={{ allCategory }} />
+        </Container>
+      </DefaultLayout>
+    </>
   );
 };
 
@@ -120,31 +123,20 @@ export const pageQuery = graphql`
     file(relativePath: { eq: "logo.svg" }) {
       publicURL
     }
-    allWordpressCategory {
-      edges {
-        node {
-          name
-          wordpress_parent
-          slug
-          wordpress_id
-        }
-      }
-    }
-    allWordpressWpMedia(filter: { media_type: { eq: "image" } }) {
+    allCategory {
       nodes {
-        media_type
-        alt_text
-        title
-        categories {
-          name
-        }
-        localFile {
+        id
+        avatar {
           childImageSharp {
             fluid {
               ...GatsbyImageSharpFluid_noBase64
             }
           }
         }
+        description
+        name
+        parent_id
+        slug
       }
     }
     imageSharp(fluid: { originalName: { eq: "hero.jpg" } }) {

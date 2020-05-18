@@ -1,6 +1,7 @@
 import { Container } from "@material-ui/core";
+import { graphql, useStaticQuery } from "gatsby";
 import * as React from "react";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ReactPlayer from "react-player";
 import { useDispatch, useSelector } from "react-redux";
 import BottomNav from "../components/BottomNav";
@@ -8,18 +9,16 @@ import AudioPage from "../components/page-content/AudioPage";
 import Spinner from "../components/Spinner";
 import { useAudioHelper } from "../hooks/useAudioHelper";
 import DefaultLayout from "../layouts/DefaultLayout";
-import { BookPage, Category } from "../model";
+import { AllAudio, AudioNode } from "../model/audio";
+import { BookNode } from "../model/book";
 import { setPage, setPlayType, setStatus } from "../redux/actions/audioActions";
 import { State } from "../redux/reducers";
 import { PlayType, Status } from "../redux/reducers/audioReducer";
+import { smoothPageScroll } from "../util/smoothScroll";
 
 interface IBookTemplate {
-  pageContext: {
-    title: string;
-    book: BookPage[];
-    offsets: Category["offsets"];
-    audio_file: string;
-  };
+  pageContext: BookNode;
+  allAudio: AllAudio;
   [key: string]: any;
 }
 
@@ -41,6 +40,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
    */
   const onLoad = () => {
     dispatch(setPage(audioState.page));
+    setTimeout(() => smoothPageScroll(audioState.page), 500);
     return onUnload;
   };
 
@@ -59,31 +59,41 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
     return onUnload;
   }, []);
 
+  useEffect(() => {
+    cleanupTimeoutState();
+  }, [audioState.page]);
+
+  const { allAudio } = useStaticQuery(query);
+
   if (!audioState) {
     return <Spinner />;
   }
+
+  const audio = allAudio?.nodes.find(
+    (node: AudioNode) => node.book_id === pageContext.id
+  );
 
   const helper = useAudioHelper({
     audioState,
     reactPlayer: reactPlayerRef,
     setLoopTimeout,
     cleanupTimeoutState,
-    offsets: pageContext.offsets,
+    offsets: JSON.parse(audio?.offset || "{}"),
   });
 
   return (
     <DefaultLayout title={pageContext.title}>
       <Container maxWidth="sm">
-        {pageContext?.book.map((page, i) => {
+        {pageContext?.content.map((con, i) => {
           return (
-            <Fragment key={i}>
-              <AudioPage
-                page={page}
-                title={pageContext.title}
-                audioState={audioState}
-                dispatch={dispatch}
-              />
-            </Fragment>
+            <AudioPage
+              key={i}
+              page_number={i}
+              content={con}
+              title={pageContext.title}
+              audioState={audioState}
+              dispatch={dispatch}
+            />
           );
         })}
       </Container>
@@ -94,7 +104,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
       />
       <ReactPlayer
         ref={reactPlayerRef}
-        url={pageContext.audio_file}
+        url={audio?.src?.publicURL}
         progressInterval={1000}
         onProgress={helper.onProgressAudio}
         height={0}
@@ -109,3 +119,19 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
 };
 
 export default BookTemplate;
+
+const query = graphql`
+  {
+    allAudio {
+      nodes {
+        id
+        src {
+          publicURL
+        }
+        book_id
+        name
+        offset
+      }
+    }
+  }
+`;

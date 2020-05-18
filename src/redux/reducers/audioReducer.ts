@@ -1,3 +1,4 @@
+import { User } from "netlify-identity-widget";
 import {
   PAUSE_AUDIO,
   PLAY_AUDIO,
@@ -19,6 +20,7 @@ interface Audio {
 
 export interface State {
   audio: Audio;
+  user: User | {};
 }
 
 export enum Status {

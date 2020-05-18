@@ -1,19 +1,19 @@
-export interface AllWordpressCategory {
-  edges: CategoryEdge[];
+import { GatsbyImage } from "./image";
+
+export interface AllCategory {
+  nodes: CategoryNode[];
+  group: Group[];
 }
 
-export interface CategoryEdge {
-  node: Category;
-}
-
-export interface Category {
+export interface CategoryNode {
+  id: string;
+  avatar?: GatsbyImage;
+  description?: string;
   name: string;
-  wordpress_parent: number;
+  parent_id: string;
   slug: string;
-  wordpress_id: number;
-  offsets: { [key: string]: number[] };
-  audio_file: string;
-  parent_element: {
-    name: string;
-  };
+}
+
+interface Group {
+  nodes: CategoryNode[];
 }
