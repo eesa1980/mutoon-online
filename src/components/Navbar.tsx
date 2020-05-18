@@ -133,7 +133,9 @@ const Navbar = React.forwardRef((props: any, searchRef) => {
     [data.allCategory.group]
   );
 
-  const isActivePage = (slug: string) => props.location.pathname.includes(slug);
+  const isActivePage = (slug: string) =>
+    (typeof window === "object" && window.location.pathname.includes(slug)) ||
+    false;
 
   const drawer = (
     <div>
@@ -151,7 +153,7 @@ const Navbar = React.forwardRef((props: any, searchRef) => {
         <ListItem
           button
           onClick={() => navigate("/")}
-          selected={props.location.pathname === "/"}
+          selected={typeof window === "object" && location.pathname === "/"}
         >
           <ListItemIcon>
             <HomeIcon />{" "}

@@ -11,6 +11,7 @@
     "@mdx-js/mdx": "^1.6.1",
     "@mdx-js/react": "^1.6.1",
     "@types/dotenv": "^8.2.0",
+    "@types/howler": "^2.1.2",
     "@types/netlify-identity-widget": "^1.4.1",
     "@types/node": "^13.13.4",
     "@types/node-fetch": "^2.5.7",

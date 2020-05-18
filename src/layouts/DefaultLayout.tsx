@@ -133,7 +133,6 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = (props) => {
       <ThemeProvider theme={theme}>
         <SEO title={props.title} />
         <Navbar
-          location={location}
           onSearch={(e: any) => debounced(e.target.value)}
           ref={searchRef}
         />
