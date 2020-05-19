@@ -1,5 +1,5 @@
-import debounce from "lodash-es/debounce";
-import ReactPlayer from "react-player";
+import throttle from "lodash-es/throttle";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   setLoadingStatus,
@@ -15,80 +15,83 @@ interface IOffset {
 }
 
 interface PropTypes {
+  src: string;
   audioState: State["audio"];
-  reactPlayer: React.RefObject<ReactPlayer>;
-  setLoopTimeout: React.Dispatch<any>;
-  cleanupTimeoutState: () => void;
   offsets: IOffset;
 }
 
-export const useAudioHelper = ({
-  audioState,
-  reactPlayer,
-  setLoopTimeout,
-  offsets,
-  cleanupTimeoutState,
-}: PropTypes) => {
+export const useAudioHelper = ({ src, audioState, offsets }: PropTypes) => {
   const dispatch = useDispatch();
+  const [audioPlayer] = useState(new Audio(src));
+  const [start, duration] = offsets[`part-${audioState.page}`];
 
-  const playAudio = () => {
-    cleanupTimeoutState();
-    const [start] = offsets[`part-${audioState.page}`];
-    reactPlayer.current.seekTo(start / 1000);
-    smoothPageScroll(audioState.page);
+  const isPlaying =
+    audioPlayer.currentTime > 0 &&
+    !audioPlayer.paused &&
+    !audioPlayer.ended &&
+    audioPlayer.readyState > 2;
+
+  useEffect(() => {
+    audioPlayer.preload = "auto";
+
+    return () => {
+      audioPlayer.removeAttribute("src");
+      audioPlayer.load();
+      stopAudio();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (audioPlayer.readyState > 3) {
+      dispatch(setLoadingStatus(LoadingStatus.READY));
+    }
+  }, [audioPlayer.readyState]);
+
+  audioPlayer.ontimeupdate = () => {
+    onProgressAudio(audioPlayer.currentTime);
   };
 
-  const processTimeout = () => {
-    try {
-      const [start, duration] = offsets[`part-${audioState.page}`];
+  audioPlayer.onended = () => {
+    stopAudio();
+  };
 
-      // Sets appropriate timeout for each scenario
-      switch (audioState.playType) {
-        // Plays audio just once for duration length
-        case PlayType.PLAY_ONCE:
-          return setLoopTimeout(
-            setTimeout(() => dispatch(setStatus(Status.STOPPED)), duration)
-          );
+  audioPlayer.onloadstart = () => {
+    dispatch(setLoadingStatus(LoadingStatus.LOADING));
+  };
 
-        // Infinite loop, using recurrsion
-        case PlayType.LOOPING:
-          return setLoopTimeout(
-            setTimeout(() => {
-              reactPlayer.current.seekTo(start / 1000);
-              processTimeout();
-            }, duration)
-          );
+  const playAudio = async () => {
+    audioPlayer.currentTime = start / 1000;
+    smoothPageScroll(audioState.page);
+    await audioPlayer.play();
+  };
 
-        // No timeout needed as audio will just play normally
-        case PlayType.CONTINUOUS:
-          return dispatch(setStatus(Status.PLAYING));
-      }
-    } catch (err) {
-      dispatch(setStatus(Status.STOPPED));
-      const msg = audioState.src
-        ? `Unable to play file: "${audioState.src}". You may have forgotten to create an offsets object.\n\n`
-        : `No audio file exists. please check one has been uploaded and an offsets object has been created.\n\n`;
+  const stopAudio = () => {
+    audioPlayer.currentTime = start / 1000;
+    audioPlayer.pause();
+  };
 
-      console.error(msg + err);
+  const toggleAudio = async () => {
+    switch (audioState.status) {
+      case Status.STOPPED:
+        return stopAudio();
+      default:
+        break;
     }
   };
+
+  useEffect(() => void toggleAudio(), [audioState.status]);
 
   /**
    * When play button is pressed
    */
-  const onClickPlayToggle = () => {
-    cleanupTimeoutState();
-
+  const onClickPlayToggle = async () => {
     switch (audioState.status) {
       case Status.INACTIVE:
       case Status.STOPPED:
-        dispatch(setStatus(Status.PLAYING));
-        playAudio();
-        break;
+        await playAudio();
+        return dispatch(setStatus(Status.PLAYING));
       case Status.PLAYING:
-        dispatch(setStatus(Status.STOPPED));
-        break;
-
+        return dispatch(setStatus(Status.STOPPED));
       default:
         break;
     }
@@ -98,7 +101,6 @@ export const useAudioHelper = ({
    * When loop button is pressed
    */
   const onClickLoopToggle = () => {
-    cleanupTimeoutState();
     dispatch(setStatus(Status.STOPPED));
 
     switch (audioState.playType) {
@@ -122,51 +124,36 @@ export const useAudioHelper = ({
   /**
    * Polls audio to select correct page
    */
-  const onProgressAudio = debounce(
-    (e: any) => {
-      if (
-        audioState.loadingStatus !== LoadingStatus.READY &&
-        e.playedSeconds > 0.5
-      ) {
-        dispatch(setLoadingStatus(LoadingStatus.READY));
+  const onProgressAudio = throttle((currentTime: number) => {
+    const resetTime = () => {
+      audioPlayer.currentTime = start / 1000;
+    };
+
+    const reachedEnd = currentTime * 1000 >= start + duration;
+
+    if (audioState.status === Status.PLAYING && reachedEnd) {
+      switch (audioState.playType) {
+        case PlayType.PLAY_ONCE:
+          dispatch(setStatus(Status.STOPPED));
+          resetTime();
+          return;
+
+        case PlayType.LOOPING:
+          resetTime();
+          return;
+
+        case PlayType.CONTINUOUS:
+          dispatch(setPage(audioState.page + 1));
+          smoothPageScroll(audioState.page + 1);
+          return;
+
+        default:
+          break;
       }
-
-      if (
-        audioState.playType === PlayType.CONTINUOUS &&
-        audioState.status === Status.PLAYING
-      ) {
-        // Find all offset times lower than the amount of time audio has elapsed
-        const filtered: number[] = Object.values(offsets)
-          .map((offset: any[]) => offset[0])
-          .filter((offset) => offset < e.playedSeconds * 1000);
-
-        // Then get the highest time
-        const maxOffset = Math.max(...filtered);
-
-        // Get the key of the highest time
-        const matchingKey = Object.keys(offsets).find(
-          (part) => offsets[part][0] === maxOffset
-        );
-
-        // use key to set correct page number
-        if (matchingKey) {
-          const page = parseInt(matchingKey.split("-")[1], 10);
-          if (page !== audioState.page && page > audioState.page) {
-            dispatch(setPage(page));
-            smoothPageScroll(page);
-          }
-        }
-      }
-    },
-    500,
-    {
-      leading: false,
-      trailing: true,
     }
-  );
+  }, 100);
 
   return {
-    processTimeout,
     onProgressAudio,
     onClickPlayToggle,
     onClickLoopToggle,
