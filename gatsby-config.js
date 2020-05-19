@@ -25,16 +25,15 @@ module.exports = {
     {
       resolve: `gatsby-plugin-favicon`,
       options: {
-        logo: "./src/images/favicon.png",
+        logo: "./src/images/logo.png",
 
         // WebApp Manifest Configuration
         appDescription:
           "A tool to help with memorsation of some important Islamic texts.",
         developerName: "eesa1980",
         developerURL: "https://github.com/eesa1980",
-        background: "#fff",
-        theme_color: "#fff",
-
+        background: "#303030",
+        theme_color: "#009688",
         icons: {
           android: true,
           appleIcon: true,
@@ -81,6 +80,32 @@ module.exports = {
         cleanupOnClient: true,
         // [optional] - name of key on `window` where serialized state will be stored, default:
         windowKey: "__PRELOADED_STATE__",
+      },
+    },
+    {
+      resolve: `gatsby-plugin-manifest`,
+      options: {
+        name: `Mutoon Online`,
+        short_name: `Mutoon`,
+        start_url: `/`,
+        background_color: `#303030`,
+        theme_color: `#009688`,
+        display: `standalone`,
+        logo: "./src/images/logo.png",
+        cache_busting_mode: "none",
+        legacy: false, // this will not add apple-touch-icon links to <head>
+        theme_color_in_head: false, // This will avoid adding theme-color meta tag.
+      },
+    },
+    {
+      resolve: `gatsby-plugin-offline`,
+      options: {
+        precachePages: [`/`, `/*`],
+        options: {
+          workboxConfig: {
+            globPatterns: ["**/*"],
+          },
+        },
       },
     },
     // Add typescript stack into webpack
