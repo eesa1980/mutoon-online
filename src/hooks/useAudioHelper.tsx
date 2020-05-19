@@ -113,7 +113,10 @@ export const useAudioHelper = ({
    */
   const onProgressAudio = debounce(
     (e: any) => {
-      if (audioState.loadingStatus !== LoadingStatus.READY) {
+      if (
+        audioState.loadingStatus !== LoadingStatus.READY &&
+        e.playedSeconds > 1
+      ) {
         dispatch(setLoadingStatus(LoadingStatus.READY));
       }
 

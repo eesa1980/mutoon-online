@@ -36,6 +36,11 @@ const AudioPage: React.FC<AudioPageProps> = ({
 }) => {
   const Wrapper = getWrapper(page_number);
 
+  const shouldShowSpinner =
+    audioState.loadingStatus === LoadingStatus.LOADING &&
+    page_number === audioState.page &&
+    audioState.status === Status.PLAYING;
+
   return (
     <Wrapper
       elevation={page_number > 1 ? 3 : 0}
@@ -52,9 +57,8 @@ const AudioPage: React.FC<AudioPageProps> = ({
       }}
     >
       <HashMarker id={`page-${page_number}`} />
-      {audioState.loadingStatus === LoadingStatus.LOADING &&
-        page_number === audioState.page && <Spinner />}
-      {page_number > 0 && <PageNumber page_number={page_number as number} />}
+      {shouldShowSpinner && <Spinner />}
+      {page_number > 0 && <PageNumber page_number={page_number} />}
       <PageText
         title={title}
         page_number={page_number}
