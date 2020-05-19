@@ -25,6 +25,7 @@ export const useAudioHelper = ({ src, audioState, offsets }: PropTypes) => {
   const [audioPlayer] = useState(
     typeof window !== "undefined" && new Audio(src)
   );
+
   const [start, duration] = offsets[`part-${audioState.page}`];
 
   useEffect(() => {
@@ -54,6 +55,11 @@ export const useAudioHelper = ({ src, audioState, offsets }: PropTypes) => {
 
     audioPlayer.onloadstart = () => {
       dispatch(setLoadingStatus(LoadingStatus.LOADING));
+    };
+
+    audioPlayer.oncanplaythrough = () => {
+      audioPlayer.currentTime = start / 1000;
+      dispatch(setLoadingStatus(LoadingStatus.READY));
     };
   }
   const playAudio = async () => {
