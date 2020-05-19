@@ -39,7 +39,10 @@ export const useAudioHelper = ({ src, audioState, offsets }: PropTypes) => {
   }, []);
 
   useEffect(() => {
-    if (audioPlayer.readyState > 3) {
+    if (
+      audioPlayer.readyState > 3 &&
+      audioState.loadingStatus !== LoadingStatus.READY
+    ) {
       dispatch(setLoadingStatus(LoadingStatus.READY));
     }
   }, [audioPlayer.readyState]);
@@ -58,10 +61,13 @@ export const useAudioHelper = ({ src, audioState, offsets }: PropTypes) => {
     };
 
     audioPlayer.oncanplaythrough = () => {
-      audioPlayer.currentTime = start / 1000;
-      dispatch(setLoadingStatus(LoadingStatus.READY));
+      if (audioState.loadingStatus !== LoadingStatus.READY) {
+        audioPlayer.currentTime = start / 1000;
+        dispatch(setLoadingStatus(LoadingStatus.READY));
+      }
     };
   }
+
   const playAudio = async () => {
     audioPlayer.currentTime = start / 1000;
     smoothPageScroll(audioState.page);

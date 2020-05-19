@@ -81,29 +81,27 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
   });
 
   return (
-    <>
-      <DefaultLayout title={pageContext.title}>
-        <Container maxWidth="sm">
-          {pageContext?.content.map((con, i) => {
-            return (
-              <AudioPage
-                key={i}
-                page_number={i}
-                content={con}
-                title={pageContext.title}
-                audioState={audioState}
-                dispatch={dispatch}
-              />
-            );
-          })}
-        </Container>
-        <BottomNav
-          onClickPlayHandler={helper.onClickPlayToggle}
-          onClickLoopHandler={helper.onClickLoopToggle}
-          audioState={audioState}
-        />
-      </DefaultLayout>
-    </>
+    <DefaultLayout title={pageContext.title}>
+      <Container maxWidth="sm">
+        {pageContext?.content.map((con, i) => {
+          return (
+            <AudioPage
+              key={i}
+              page_number={i}
+              content={con}
+              title={pageContext.title}
+              audioState={audioState}
+              dispatch={dispatch}
+            />
+          );
+        })}
+      </Container>
+      <BottomNav
+        onClickPlayHandler={helper.onClickPlayToggle}
+        onClickLoopHandler={helper.onClickLoopToggle}
+        audioState={audioState}
+      />
+    </DefaultLayout>
   );
 };
 

@@ -4,6 +4,7 @@ import { navigate } from "gatsby";
 import * as React from "react";
 import DefaultLayout from "../layouts/DefaultLayout";
 import Hr from "../styled/Hr";
+import { graphql } from 'gatsby';
 
 const NotFoundPage = () => (
   <DefaultLayout>
