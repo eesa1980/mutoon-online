@@ -22,14 +22,10 @@ interface PropTypes {
 
 export const useAudioHelper = ({ src, audioState, offsets }: PropTypes) => {
   const dispatch = useDispatch();
-  const [audioPlayer] = useState(new Audio(src));
+  const [audioPlayer] = useState(
+    typeof window !== "undefined" && new Audio(src)
+  );
   const [start, duration] = offsets[`part-${audioState.page}`];
-
-  const isPlaying =
-    audioPlayer.currentTime > 0 &&
-    !audioPlayer.paused &&
-    !audioPlayer.ended &&
-    audioPlayer.readyState > 2;
 
   useEffect(() => {
     audioPlayer.preload = "auto";
@@ -47,18 +43,19 @@ export const useAudioHelper = ({ src, audioState, offsets }: PropTypes) => {
     }
   }, [audioPlayer.readyState]);
 
-  audioPlayer.ontimeupdate = () => {
-    onProgressAudio(audioPlayer.currentTime);
-  };
+  if (typeof window !== "undefined") {
+    audioPlayer.ontimeupdate = () => {
+      onProgressAudio(audioPlayer.currentTime);
+    };
 
-  audioPlayer.onended = () => {
-    stopAudio();
-  };
+    audioPlayer.onended = () => {
+      stopAudio();
+    };
 
-  audioPlayer.onloadstart = () => {
-    dispatch(setLoadingStatus(LoadingStatus.LOADING));
-  };
-
+    audioPlayer.onloadstart = () => {
+      dispatch(setLoadingStatus(LoadingStatus.LOADING));
+    };
+  }
   const playAudio = async () => {
     audioPlayer.currentTime = start / 1000;
     smoothPageScroll(audioState.page);
