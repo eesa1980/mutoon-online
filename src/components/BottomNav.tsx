@@ -4,8 +4,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import Filter1Icon from "@material-ui/icons/Filter1";
 import ForwardIcon from "@material-ui/icons/Forward";
 import LoopIcon from "@material-ui/icons/Loop";
-import PauseIcon from "@material-ui/icons/Pause";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
+import StopIcon from "@material-ui/icons/Stop";
 import * as React from "react";
 import { PlayType, State, Status } from "../redux/reducers";
 
@@ -28,8 +28,8 @@ const BottomNav: React.FC<{
   const classes = useStyles();
 
   const isPlaying = audioState.status === Status.PLAYING;
-  const StatusIcon = isPlaying ? PauseIcon : PlayArrowIcon;
-  const statusLabel = isPlaying ? "Pause" : "Play";
+  const StatusIcon = isPlaying ? StopIcon : PlayArrowIcon;
+  const statusLabel = isPlaying ? "Stop" : "Play";
 
   let PlaytypeIcon;
   let playTypeLabel;
@@ -56,11 +56,13 @@ const BottomNav: React.FC<{
 
   return (
     <BottomNavigation showLabels className={classes.root}>
-      <BottomNavigationAction
-        onClick={onClickPlayHandler}
-        label={statusLabel}
-        icon={<StatusIcon />}
-      />
+      {audioState.status === Status.PLAYING && (
+        <BottomNavigationAction
+          onClick={onClickPlayHandler}
+          label={statusLabel}
+          icon={<StatusIcon />}
+        />
+      )}
       <BottomNavigationAction
         onClick={onClickLoopHandler}
         label={playTypeLabel}
