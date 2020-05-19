@@ -50,7 +50,7 @@ const INITIAL_STATE: State["audio"] = {
   player,
   page: 1,
   src: "",
-  playType: PlayType.LOOPING,
+  playType: PlayType.PLAY_ONCE,
   status: Status.INACTIVE,
   loadingStatus: LoadingStatus.INACTIVE,
 };

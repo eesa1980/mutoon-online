@@ -72,12 +72,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
 
   useEffect(() => {
     cleanupTimeoutState();
-  }, [
-    audioState.page,
-    audioState.loadingStatus,
-    audioState.playType,
-    audioState.src,
-  ]);
+  }, [audioState.page]);
 
   const { allAudio } = useStaticQuery(query);
 
@@ -124,6 +119,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
           audioState={audioState}
         />
         <ReactPlayer
+          onPlay={helper.processTimeout}
           ref={reactPlayerRef}
           url={audio?.src?.publicURL}
           progressInterval={1000}

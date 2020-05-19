@@ -27,16 +27,20 @@ export const useAudioHelper = ({
   reactPlayer,
   setLoopTimeout,
   offsets,
+  cleanupTimeoutState,
 }: PropTypes) => {
   const dispatch = useDispatch();
 
   const playAudio = () => {
+    cleanupTimeoutState();
+    const [start] = offsets[`part-${audioState.page}`];
+    reactPlayer.current.seekTo(start / 1000);
+    smoothPageScroll(audioState.page);
+  };
+
+  const processTimeout = () => {
     try {
       const [start, duration] = offsets[`part-${audioState.page}`];
-
-      reactPlayer.current.seekTo(start / 1000);
-
-      smoothPageScroll(audioState.page);
 
       // Sets appropriate timeout for each scenario
       switch (audioState.playType) {
@@ -48,11 +52,16 @@ export const useAudioHelper = ({
 
         // Infinite loop, using recurrsion
         case PlayType.LOOPING:
-          return setLoopTimeout(setTimeout(playAudio, duration));
+          return setLoopTimeout(
+            setTimeout(() => {
+              reactPlayer.current.seekTo(start / 1000);
+              processTimeout();
+            }, duration)
+          );
 
         // No timeout needed as audio will just play normally
         case PlayType.CONTINUOUS:
-          dispatch(setStatus(Status.PLAYING));
+          return dispatch(setStatus(Status.PLAYING));
       }
     } catch (err) {
       dispatch(setStatus(Status.STOPPED));
@@ -68,6 +77,8 @@ export const useAudioHelper = ({
    * When play button is pressed
    */
   const onClickPlayToggle = () => {
+    cleanupTimeoutState();
+
     switch (audioState.status) {
       case Status.INACTIVE:
       case Status.STOPPED:
@@ -87,20 +98,20 @@ export const useAudioHelper = ({
    * When loop button is pressed
    */
   const onClickLoopToggle = () => {
+    cleanupTimeoutState();
+    dispatch(setStatus(Status.STOPPED));
+
     switch (audioState.playType) {
       case PlayType.PLAY_ONCE:
         dispatch(setPlayType(PlayType.LOOPING));
-        dispatch(setStatus(Status.STOPPED));
         break;
 
       case PlayType.LOOPING:
         dispatch(setPlayType(PlayType.CONTINUOUS));
-        dispatch(setStatus(Status.STOPPED));
         break;
 
       case PlayType.CONTINUOUS:
         dispatch(setPlayType(PlayType.PLAY_ONCE));
-        dispatch(setStatus(Status.STOPPED));
         break;
 
       default:
@@ -115,7 +126,7 @@ export const useAudioHelper = ({
     (e: any) => {
       if (
         audioState.loadingStatus !== LoadingStatus.READY &&
-        e.playedSeconds > 1
+        e.playedSeconds > 0.5
       ) {
         dispatch(setLoadingStatus(LoadingStatus.READY));
       }
@@ -155,7 +166,7 @@ export const useAudioHelper = ({
   );
 
   return {
-    playAudio,
+    processTimeout,
     onProgressAudio,
     onClickPlayToggle,
     onClickLoopToggle,
