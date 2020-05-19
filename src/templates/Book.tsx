@@ -1,7 +1,7 @@
 import { Container } from "@material-ui/core";
 import { graphql, useStaticQuery } from "gatsby";
 import * as React from "react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import BottomNav from "../components/BottomNav";
 import AudioPage from "../components/page-content/AudioPage";
@@ -13,15 +13,10 @@ import { BookNode } from "../model/book";
 import {
   setLoadingStatus,
   setPage,
-  setPlayType,
   setStatus,
 } from "../redux/actions/audioActions";
 import { State } from "../redux/reducers";
-import {
-  LoadingStatus,
-  PlayType,
-  Status,
-} from "../redux/reducers/audioReducer";
+import { LoadingStatus, Status } from "../redux/reducers/audioReducer";
 import { smoothPageScroll } from "../util/smoothScroll";
 
 interface IBookTemplate {
@@ -31,6 +26,7 @@ interface IBookTemplate {
 }
 
 const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
+  const audioPlayer = useRef(null);
   const audioState: State["audio"] = useSelector((state: State) => state.audio);
   const dispatch = useDispatch();
 
@@ -50,7 +46,6 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
    */
   const onUnload = () => {
     dispatch(setPage(1));
-    dispatch(setPlayType(PlayType.PLAY_ONCE));
     dispatch(setStatus(Status.STOPPED));
     dispatch(setLoadingStatus(LoadingStatus.INACTIVE));
   };
@@ -70,18 +65,20 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
     );
   }
 
-  const audio = allAudio?.nodes.find(
+  const audio: AudioNode = allAudio?.nodes.find(
     (node: AudioNode) => node.book_id === pageContext.id
   );
 
   const helper = useAudioHelper({
-    src: audio?.src?.publicURL,
+    audioPlayer: audioPlayer.current,
     audioState,
     offsets: JSON.parse(audio?.offset || "{}"),
   });
 
   return (
     <DefaultLayout title={pageContext.title}>
+      <audio src={audio.src.publicURL} preload={"auto"} ref={audioPlayer} />
+
       <Container maxWidth="sm">
         {pageContext?.content.map((con, i) => {
           return (
@@ -92,6 +89,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
               title={pageContext.title}
               audioState={audioState}
               dispatch={dispatch}
+              onClickPlayToggle={helper.onClickPlayToggle}
             />
           );
         })}

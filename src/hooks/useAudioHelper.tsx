@@ -1,5 +1,5 @@
 import throttle from "lodash-es/throttle";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import {
   setLoadingStatus,
@@ -15,41 +15,38 @@ interface IOffset {
 }
 
 interface PropTypes {
-  src: string;
+  audioPlayer: HTMLAudioElement;
   audioState: State["audio"];
   offsets: IOffset;
 }
 
-export const useAudioHelper = ({ src, audioState, offsets }: PropTypes) => {
+export const useAudioHelper = ({
+  audioPlayer,
+  audioState,
+  offsets,
+}: PropTypes) => {
   const dispatch = useDispatch();
-  const [audioPlayer] = useState(
-    typeof window !== "undefined" && new Audio(src)
-  );
 
   const [start, duration] = offsets[`part-${audioState.page}`];
 
   useEffect(() => {
-    audioPlayer.preload = "auto";
-
     return () => {
-      audioPlayer.removeAttribute("src");
-      audioPlayer.load();
       stopAudio();
     };
   }, []);
 
   useEffect(() => {
     if (
-      audioPlayer.readyState > 3 &&
+      audioPlayer?.readyState > 3 &&
       audioState.loadingStatus !== LoadingStatus.READY
     ) {
       dispatch(setLoadingStatus(LoadingStatus.READY));
     }
-  }, [audioPlayer.readyState]);
+  }, [audioPlayer?.readyState]);
 
-  if (typeof window !== "undefined") {
+  if (typeof window !== "undefined" && audioPlayer !== null) {
     audioPlayer.ontimeupdate = () => {
-      onProgressAudio(audioPlayer.currentTime);
+      onProgressAudio(audioPlayer?.currentTime);
     };
 
     audioPlayer.onended = () => {
@@ -69,12 +66,31 @@ export const useAudioHelper = ({ src, audioState, offsets }: PropTypes) => {
   }
 
   const playAudio = async () => {
-    audioPlayer.currentTime = start / 1000;
-    smoothPageScroll(audioState.page);
+    if (audioPlayer === null) {
+      return;
+    }
+
+    if (audioState.status !== Status.PAUSED) {
+      audioPlayer.currentTime = start / 1000;
+      smoothPageScroll(audioState.page);
+    }
+
     await audioPlayer.play();
   };
 
+  const pauseAudio = () => {
+    if (audioPlayer === null) {
+      return;
+    }
+
+    audioPlayer.pause();
+  };
+
   const stopAudio = () => {
+    if (audioPlayer === null) {
+      return;
+    }
+
     audioPlayer.currentTime = start / 1000;
     audioPlayer.pause();
   };
@@ -83,6 +99,8 @@ export const useAudioHelper = ({ src, audioState, offsets }: PropTypes) => {
     switch (audioState.status) {
       case Status.STOPPED:
         return stopAudio();
+      case Status.PAUSED:
+        return pauseAudio();
       default:
         break;
     }
@@ -97,6 +115,7 @@ export const useAudioHelper = ({ src, audioState, offsets }: PropTypes) => {
     switch (audioState.status) {
       case Status.INACTIVE:
       case Status.STOPPED:
+      case Status.PAUSED:
         await playAudio();
         return dispatch(setStatus(Status.PLAYING));
       case Status.PLAYING:
@@ -163,7 +182,6 @@ export const useAudioHelper = ({ src, audioState, offsets }: PropTypes) => {
   }, 100);
 
   return {
-    onProgressAudio,
     onClickPlayToggle,
     onClickLoopToggle,
   };
