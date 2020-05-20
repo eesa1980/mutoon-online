@@ -20,10 +20,10 @@ import {
 } from "@material-ui/core/styles";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import BookTwoToneIcon from "@material-ui/icons/Book";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import HomeIcon from "@material-ui/icons/Home";
+import LibraryBooksIcon from "@material-ui/icons/LibraryBooks";
 import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
 import { graphql, navigate, useStaticQuery } from "gatsby";
@@ -184,7 +184,7 @@ const Navbar = React.forwardRef((props: any, searchRef) => {
                   }}
                 >
                   <ListItemIcon>
-                    <BookTwoToneIcon />{" "}
+                    <LibraryBooksIcon />{" "}
                   </ListItemIcon>
                   <ListItemText primary={item.name} />
                 </ListItem>

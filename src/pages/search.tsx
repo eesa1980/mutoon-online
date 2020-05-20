@@ -11,7 +11,7 @@ const SearchResults: React.FC<any> = () => {
   const searchVal = url.searchParams.get("term");
 
   return (
-    <DefaultLayout>
+    <DefaultLayout title={`Search for "${searchVal}"`}>
       <Search searchVal={searchVal} />
     </DefaultLayout>
   );

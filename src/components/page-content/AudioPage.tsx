@@ -25,7 +25,7 @@ interface AudioPageProps extends PageProps {
 
 const HashMarker = styled.span`
   position: absolute;
-  margin-top: -110px;
+  margin-top: -140px;
 `;
 
 const ButtonBaseStyled: any = styled(ButtonBase)`

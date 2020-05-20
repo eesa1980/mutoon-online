@@ -5,6 +5,7 @@ import {
   withTheme,
 } from "@material-ui/core";
 import teal from "@material-ui/core/colors/teal";
+import LibraryBooksIcon from "@material-ui/icons/LibraryBooks";
 import { graphql, useStaticQuery } from "gatsby";
 import * as React from "react";
 import { useEffect, useRef } from "react";
@@ -25,35 +26,19 @@ import { State } from "../redux/reducers";
 import { LoadingStatus, Status } from "../redux/reducers/audioReducer";
 import { smoothPageScroll } from "../util/smoothScroll";
 
-function removeHash() {
+const removeHash = () => {
   history.pushState(
     "",
     document.title,
     window.location.pathname + window.location.search
   );
-}
+};
 
 interface IBookTemplate {
   pageContext: BookNode;
   allAudio: AllAudio;
   [key: string]: any;
 }
-
-const Title = withTheme(styled(Container)`
-  ${(props: { theme: ThemeOptions | any }) =>
-    css`
-      padding-top: ${props.theme.spacing(0.5)}px;
-      padding-bottom: ${props.theme.spacing(0.5)}px;
-      position: sticky;
-      opacity: 1;
-      z-index: 9999;
-      background: ${teal[700]};
-      top: 56px;
-      @media screen and (min-width: ${props.theme.breakpoints.values.sm}px) {
-        top: 64px;
-      }
-    `}
-`);
 
 const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
   const audioPlayer = useRef<HTMLAudioElement>(null);
@@ -108,7 +93,10 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
   return (
     <DefaultLayout title={pageContext.title}>
       <Title>
-        <Typography color="textPrimary">{pageContext.title}</Typography>
+        <Typography color="textPrimary">
+          <LibraryBooksIcon fontSize="small" />
+          &nbsp;&nbsp;{pageContext.title}
+        </Typography>
       </Title>
 
       <audio src={audio.src.publicURL} preload={"auto"} ref={audioPlayer} />
@@ -154,3 +142,26 @@ const query = graphql`
     }
   }
 `;
+
+const Title = withTheme(styled(Container)`
+  ${(props: { theme: ThemeOptions }) =>
+    css`
+      padding-top: 4px;
+      padding-bottom: 4px;
+      box-shadow: ${props.theme.shadows[5]};
+      position: sticky;
+      opacity: 1;
+      z-index: ${props.theme.zIndex.appBar};
+      background: ${teal[700]};
+      top: 56px;
+      @media screen and (min-width: ${props.theme.breakpoints.values.sm}px) {
+        top: 64px;
+      }
+
+      > * {
+        display: flex;
+        align-items: center;
+        justify-content: left;
+      }
+    `}
+`);
