@@ -1,8 +1,15 @@
-import { Container } from "@material-ui/core";
+import {
+  Container,
+  ThemeOptions,
+  Typography,
+  withTheme,
+} from "@material-ui/core";
+import teal from "@material-ui/core/colors/teal";
 import { graphql, useStaticQuery } from "gatsby";
 import * as React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import styled, { css } from "styled-components";
 import BottomNav from "../components/BottomNav";
 import AudioPage from "../components/page-content/AudioPage";
 import { useAudioHelper } from "../hooks/useAudioHelper";
@@ -32,11 +39,26 @@ interface IBookTemplate {
   [key: string]: any;
 }
 
+const Title = withTheme(styled(Container)`
+  ${(props: { theme: ThemeOptions | any }) =>
+    css`
+      padding-top: ${props.theme.spacing(0.5)}px;
+      padding-bottom: ${props.theme.spacing(0.5)}px;
+      position: sticky;
+      opacity: 1;
+      z-index: 9999;
+      background: ${teal[700]};
+      top: 56px;
+      @media screen and (min-width: ${props.theme.breakpoints.values.sm}px) {
+        top: 64px;
+      }
+    `}
+`);
+
 const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
   const audioPlayer = useRef<HTMLAudioElement>(null);
   const audioState: State["audio"] = useSelector((state: State) => state.audio);
   const dispatch = useDispatch();
-  const [showLoader, setShowLoader] = useState<boolean>(true);
 
   /**
    * When page first loads
@@ -85,6 +107,10 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
 
   return (
     <DefaultLayout title={pageContext.title}>
+      <Title>
+        <Typography color="textPrimary">{pageContext.title}</Typography>
+      </Title>
+
       <audio src={audio.src.publicURL} preload={"auto"} ref={audioPlayer} />
 
       <Container maxWidth="sm">
