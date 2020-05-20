@@ -7,7 +7,7 @@ import {
   Theme,
   ThemeProvider,
 } from "@material-ui/core/styles";
-import debounce from "lodash-es/debounce";
+import { navigate } from "gatsby";
 import { User } from "netlify-identity-widget";
 import "nprogress/nprogress.css";
 import * as React from "react";
@@ -15,16 +15,9 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import Navbar from "../components/Navbar";
-import Search from "../components/search/Search";
 import SEO from "../components/Seo";
 import { setUser } from "../redux/actions";
-import {
-  getUser,
-  handleLogin,
-  initAuth,
-  isLoggedIn,
-  logout,
-} from "../service/auth";
+import { handleLogin, isLoggedIn, logout } from "../service/auth";
 import { compose } from "../util/compose";
 import { stripTashkeel } from "../util/stringModifiers";
 import "./index.css";
@@ -51,8 +44,8 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = (props) => {
   const loggedIn = isLoggedIn();
 
   const onLoad = () => {
-    initAuth();
-    dispatch(setUser(getUser()));
+    // initAuth();
+    // dispatch(setUser(getUser()));
   };
 
   useEffect(onLoad, []);
@@ -96,18 +89,15 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = (props) => {
 
   theme = responsiveFontSizes(theme);
 
-  const updateSearchVal = (val: string) => {
-    if (val.length >= 3 && val.length > 0) {
-      return compose(stripTashkeel, setSearchVal)(val);
-    }
-
-    setSearchVal("");
+  const onChangeSearch = (val: string) => {
+    const stripped = compose(stripTashkeel)(val);
+    setSearchVal(stripped);
   };
 
-  const debounced = debounce(updateSearchVal, 1000, {
-    leading: false,
-    trailing: true,
-  });
+  const onSubmitSearch = (e: any) => {
+    e.preventDefault();
+    navigate("/search/?term=" + searchVal);
+  };
 
   return (
     <Background theme={theme}>
@@ -133,14 +123,11 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = (props) => {
       <ThemeProvider theme={theme}>
         <SEO title={props.title} />
         <Navbar
-          onSearch={(e: any) => debounced(e.target.value)}
+          onChangeSearch={(e: any) => onChangeSearch(e.target.value)}
+          onSubmitSearch={onSubmitSearch}
           ref={searchRef}
         />
-        {searchVal ? (
-          <Search searchVal={searchVal} setSearchVal={setSearchVal} />
-        ) : (
-          props.children
-        )}
+        {props.children}
       </ThemeProvider>
     </Background>
   );

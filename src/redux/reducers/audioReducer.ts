@@ -11,7 +11,7 @@ import {
 } from "../actions/audioActions";
 
 interface Audio {
-  player: HTMLAudioElement;
+  player?: HTMLAudioElement;
   page: number;
   src: string;
   playType: PlayType;
@@ -44,10 +44,7 @@ export enum LoadingStatus {
   READY = "READY",
 }
 
-const player = typeof window !== "undefined" && new Audio();
-
 const INITIAL_STATE: State["audio"] = {
-  player,
   page: 1,
   src: "",
   playType: PlayType.CONTINUOUS,

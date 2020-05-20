@@ -1,7 +1,6 @@
 import { CircularProgress } from "@material-ui/core";
 import * as React from "react";
-import { useEffect, useState } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -14,25 +13,32 @@ const Wrapper = styled.div`
   justify-content: center;
 `;
 
-const Spinner = () => {
-  const [show, set] = useState(false);
+const Fullscreen = styled.div`
+  ${(props: any) => {
+    return (
+      !!props["data-fullscreen"] &&
+      css`
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 100vw;
+        z-index: 99999;
+        background: #000000;
+      `
+    );
+  }}
+`;
 
-  useEffect(() => {
-    const to = setTimeout(() => set(true), 300);
-
-    return () => {
-      clearTimeout(to);
-    };
-  }, []);
-
-  if (!show) {
-    return <></>;
-  }
-
+const Spinner: React.FC<{ fullscreen?: boolean }> = ({
+  fullscreen = false,
+}) => {
   return (
-    <Wrapper>
-      <CircularProgress size={70} />
-    </Wrapper>
+    <Fullscreen data-fullscreen={fullscreen}>
+      <Wrapper>
+        <CircularProgress size={70} />
+      </Wrapper>
+    </Fullscreen>
   );
 };
 

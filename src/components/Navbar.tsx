@@ -1,4 +1,5 @@
 import {
+  ButtonBase,
   Divider,
   Drawer,
   List,
@@ -29,7 +30,6 @@ import { graphql, navigate, useStaticQuery } from "gatsby";
 import * as React from "react";
 import { useDispatch } from "react-redux";
 import { AllCategory, CategoryNode } from "../model/category";
-import { setPage } from "../redux/actions";
 
 const drawerWidth = 240;
 
@@ -40,6 +40,9 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     menuButton: {
       marginRight: theme.spacing(2),
+    },
+    searchButton: {
+      marginLeft: theme.spacing(1),
     },
     title: {
       flexGrow: 1,
@@ -93,7 +96,7 @@ const useStyles = makeStyles((theme: Theme) =>
     inputInput: {
       padding: theme.spacing(1, 1, 1, 0),
       // vertical padding + font size from searchIcon
-      paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+      paddingLeft: `calc(1em + ${theme.spacing(1)}px)`,
       transition: theme.transitions.create("width"),
       width: "100%",
       [theme.breakpoints.up("sm")]: {
@@ -175,7 +178,6 @@ const Navbar = React.forwardRef((props: any, searchRef) => {
                   onClick={() => {
                     if (!isActivePage(item.slug)) {
                       navigate(item.slug);
-                      dispatch(setPage(1));
                     }
 
                     setOpen(false);
@@ -197,39 +199,53 @@ const Navbar = React.forwardRef((props: any, searchRef) => {
   return (
     <>
       <AppBar position="sticky">
-        <Toolbar>
-          <IconButton
-            edge="start"
-            className={classes.menuButton}
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerToggle}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography className={classes.title} variant="h6" noWrap>
-            Mutoon Online
-          </Typography>
-          <div className={classes.search}>
-            <div className={classes.searchIcon}>
-              <SearchIcon />
+        <form onSubmit={props.onSubmitSearch}>
+          <Toolbar>
+            <IconButton
+              edge="start"
+              className={classes.menuButton}
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerToggle}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography className={classes.title} variant="h6" noWrap>
+              <ButtonBase
+                component="a"
+                onClick={() => navigate("/")}
+                title="Mutoon Online"
+              >
+                Mutoon Online
+              </ButtonBase>
+            </Typography>
+            <div className={classes.search}>
+              <InputBase
+                id="navSearch"
+                ref={searchRef}
+                type="search"
+                autoFocus={false}
+                fullWidth={true}
+                onChange={props.onChangeSearch}
+                placeholder="Search..."
+                classes={{
+                  root: classes.inputRoot,
+                  input: classes.inputInput,
+                }}
+                inputProps={{ "aria-label": "search book text" }}
+              />
             </div>
-            <InputBase
-              id="navSearch"
-              ref={searchRef}
-              type="search"
-              autoFocus={false}
-              fullWidth={true}
-              onChange={props.onSearch}
-              placeholder="Search book texts..."
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput,
-              }}
-              inputProps={{ "aria-label": "search book text" }}
-            />
-          </div>
-        </Toolbar>
+            <IconButton
+              type="submit"
+              edge="start"
+              className={classes.searchButton}
+              color="inherit"
+              aria-label="Search"
+            >
+              <SearchIcon />
+            </IconButton>
+          </Toolbar>
+        </form>
       </AppBar>
       <nav className={classes.drawer} aria-label="mailbox folders">
         <Drawer

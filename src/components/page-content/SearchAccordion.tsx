@@ -13,13 +13,7 @@ import { BookNode } from "../../model/book";
 import { setPage } from "../../redux/actions/audioActions";
 import Page from "./Page";
 
-const Content = ({
-  book,
-  setSearchVal,
-}: {
-  book: BookNode;
-  setSearchVal: React.Dispatch<React.SetStateAction<string>>;
-}) => {
+const Content = ({ book }: { book: BookNode }) => {
   const dispatch = useDispatch();
 
   return (
@@ -28,9 +22,8 @@ const Content = ({
         return (
           <ButtonBase
             onClick={() => {
-              setSearchVal("");
               dispatch(setPage(content.page_number));
-              navigate(`${book.slug}`);
+              navigate(`${book.slug}#page-${content.page_number}`);
             }}
             key={`${book.title}-${i}`}
             title={`Go to page ${content.page_number} of ${book.title}`}
@@ -66,7 +59,6 @@ const SearchAccordion: React.FC<{
     book: BookNode;
     count: number;
   };
-  setSearchVal: React.Dispatch<React.SetStateAction<string>>;
 }> = ({ result, setSearchVal }) => (
   <ExpansionPanel>
     <ExpansionPanelSummary

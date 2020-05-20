@@ -1,12 +1,11 @@
-import { Button, ButtonGroup } from "@material-ui/core";
+import { Button, ButtonBase, ButtonGroup } from "@material-ui/core";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import StopIcon from "@material-ui/icons/Stop";
 import * as React from "react";
-import { useEffect, useState } from "react";
 import { Dispatch } from "redux";
 import styled from "styled-components";
 import { Content } from "../../model/book";
-import { setPage } from "../../redux/actions/audioActions";
+import { setPage, setStatus } from "../../redux/actions/audioActions";
 import { State } from "../../redux/reducers";
 import { LoadingStatus, Status } from "../../redux/reducers/audioReducer";
 import { PaperStyled, PaperStyledTitle } from "../../styled/PaperStyled";
@@ -29,6 +28,12 @@ const HashMarker = styled.span`
   margin-top: -110px;
 `;
 
+const ButtonBaseStyled: any = styled(ButtonBase)`
+  position: static;
+  display: block;
+  width: 100%;
+`;
+
 const getWrapper = (index: number) =>
   index > 0 ? PaperStyled : PaperStyledTitle;
 
@@ -41,68 +46,62 @@ const AudioPage: React.FC<AudioPageProps> = ({
   onClickPlayToggle,
 }) => {
   const Wrapper = getWrapper(page_number);
-  const [pressed, setPressed] = useState<number>(0);
 
   const shouldShowSpinner =
     audioState.loadingStatus === LoadingStatus.LOADING &&
     page_number === audioState.page &&
     audioState.status === Status.PLAYING;
 
-  useEffect(() => {
-    if (pressed) {
-      onClickPlayToggle();
-    }
-  }, [pressed]);
-
   return (
     <Wrapper
       elevation={page_number > 1 ? 3 : 0}
       disabled={page_number === audioState.page}
       style={{
-        opacity:
-          page_number === audioState.page
-            ? 1
-            : page_number > 0 && audioState.status === Status.PLAYING && 0.5,
+        opacity: page_number === audioState.page ? 1 : page_number > 0 && 0.5,
       }}
     >
-      <HashMarker id={`page-${page_number}`} />
-      {shouldShowSpinner && <Spinner />}
-      {page_number > 0 && <PageNumber page_number={page_number} />}
-      <PageText
-        title={title}
-        page_number={page_number}
-        arabic={content.ar}
-        english={content.en}
-      />
-      <ButtonGroup size="large" fullWidth={true}>
+      <ButtonBaseStyled
+        onClick={() => {
+          if (page_number > 0) {
+            dispatch(setPage(page_number));
+            dispatch(setStatus(Status.STOPPED));
+          }
+        }}
+        disabled={page_number < 1}
+        disableRipple={page_number === audioState.page}
+        component={"div"}
+      >
+        <HashMarker id={`page-${page_number}`} />
+        {shouldShowSpinner && <Spinner />}
+        {page_number > 0 && <PageNumber page_number={page_number} />}
+        <PageText
+          title={title}
+          page_number={page_number}
+          arabic={content.ar}
+          english={content.en}
+        />
         {page_number > 0 && (
-          <Button
-            fullWidth={true}
-            variant={
-              audioState.status === Status.PLAYING ? "text" : "contained"
-            }
-            color="primary"
-            onClick={() => {
-              dispatch(setPage(page_number));
-              setPressed(pressed + 1);
-            }}
-            size="large"
-            disabled={
-              audioState.status === Status.PLAYING &&
-              page_number !== audioState.page
-            }
-            endIcon={
-              audioState.status === Status.PLAYING ? (
-                <StopIcon />
-              ) : (
-                <PlayArrowIcon />
-              )
-            }
-          >
-            {audioState.status === Status.PLAYING ? "stop" : "play"}
-          </Button>
+          <ButtonGroup variant="text" fullWidth>
+            <Button
+              fullWidth
+              variant={page_number !== audioState.page ? "text" : "contained"}
+              color="primary"
+              onClick={onClickPlayToggle}
+              size="large"
+              disabled={page_number !== audioState.page}
+              endIcon={
+                audioState.status === Status.PLAYING ? (
+                  <StopIcon />
+                ) : (
+                  <PlayArrowIcon />
+                )
+              }
+            >
+              {audioState.status === Status.PLAYING ? "stop" : "play"}
+            </Button>
+          </ButtonGroup>
         )}
-      </ButtonGroup>
+      </ButtonBaseStyled>
     </Wrapper>
   );
 };
