@@ -59,7 +59,7 @@ const SearchAccordion: React.FC<{
     book: BookNode;
     count: number;
   };
-}> = ({ result, setSearchVal }) => (
+}> = ({ result }) => (
   <ExpansionPanel>
     <ExpansionPanelSummary
       expandIcon={<ExpandMoreIcon />}
@@ -69,7 +69,7 @@ const SearchAccordion: React.FC<{
       <Title title={result.book.title} count={result.count} />
     </ExpansionPanelSummary>
     <ExpansionPanelDetails style={{ display: "block" }}>
-      <Content book={result.book} setSearchVal={setSearchVal} />
+      <Content book={result.book} />
     </ExpansionPanelDetails>
   </ExpansionPanel>
 );
