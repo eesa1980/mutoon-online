@@ -1,16 +1,9 @@
-import {
-  Container,
-  ThemeOptions,
-  Typography,
-  withTheme,
-} from "@material-ui/core";
-import teal from "@material-ui/core/colors/teal";
+import { Container, Typography } from "@material-ui/core";
 import LibraryBooksIcon from "@material-ui/icons/LibraryBooks";
 import { graphql, useStaticQuery } from "gatsby";
 import * as React from "react";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import styled, { css } from "styled-components";
 import BottomNav from "../components/BottomNav";
 import AudioPage from "../components/page-content/AudioPage";
 import { useAudioHelper } from "../hooks/useAudioHelper";
@@ -24,6 +17,7 @@ import {
 } from "../redux/actions/audioActions";
 import { State } from "../redux/reducers";
 import { LoadingStatus, Status } from "../redux/reducers/audioReducer";
+import { FloatingTitle } from "../styled/FloatingTitle";
 import { smoothPageScroll } from "../util/smoothScroll";
 
 const removeHash = () => {
@@ -92,12 +86,12 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
 
   return (
     <DefaultLayout title={pageContext.title}>
-      <Title>
+      <FloatingTitle>
         <Typography color="textPrimary">
           <LibraryBooksIcon fontSize="small" />
           &nbsp;&nbsp;{pageContext.title}
         </Typography>
-      </Title>
+      </FloatingTitle>
 
       <audio src={audio.src.publicURL} preload={"auto"} ref={audioPlayer} />
 
@@ -142,26 +136,3 @@ const query = graphql`
     }
   }
 `;
-
-const Title = withTheme(styled(Container)`
-  ${(props: { theme: ThemeOptions }) =>
-    css`
-      padding-top: 4px;
-      padding-bottom: 4px;
-      box-shadow: ${props.theme.shadows[5]};
-      position: sticky;
-      opacity: 1;
-      z-index: ${props.theme.zIndex.appBar};
-      background: ${teal[700]};
-      top: 56px;
-      @media screen and (min-width: ${props.theme.breakpoints.values.sm}px) {
-        top: 64px;
-      }
-
-      > * {
-        display: flex;
-        align-items: center;
-        justify-content: left;
-      }
-    `}
-`);
