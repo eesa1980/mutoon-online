@@ -10,7 +10,6 @@ import { ContentProcessor } from "./ContentProcessor";
 
 interface SearchPageProps {
   searchVal: string;
-  setSearchVal: React.Dispatch<React.SetStateAction<string>>;
 }
 
 interface Results {
@@ -22,10 +21,7 @@ const Root = withTheme(styled.div`
   margin-top: ${({ theme }) => theme.spacing(4)}px;
 `);
 
-const Search: React.FC<SearchPageProps> = ({
-  searchVal = "",
-  setSearchVal,
-}) => {
+const Search: React.FC<SearchPageProps> = ({ searchVal = "" }) => {
   const data: {
     allBook: AllBook;
   } = useStaticQuery(searchQuery);
@@ -45,6 +41,23 @@ const Search: React.FC<SearchPageProps> = ({
   }, [searchVal]);
 
   const total = results.reduce((i: number, res: Results) => i + res.count, 0);
+
+  if (searchVal.length < 3) {
+    return (
+      <Root>
+        <Container maxWidth="sm">
+          <Typography
+            component="div"
+            variant="h6"
+            color="textPrimary"
+            align="center"
+          >
+            <p>Please search for a term with 3 or more letters</p>
+          </Typography>
+        </Container>
+      </Root>
+    );
+  }
 
   return (
     <Root>
@@ -73,7 +86,6 @@ const Search: React.FC<SearchPageProps> = ({
               <SearchAccordion
                 key={i}
                 result={result}
-                setSearchVal={setSearchVal}
               />
             ))
         ) : (

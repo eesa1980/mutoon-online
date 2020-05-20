@@ -1,11 +1,10 @@
 import { Container } from "@material-ui/core";
 import { graphql, useStaticQuery } from "gatsby";
 import * as React from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import BottomNav from "../components/BottomNav";
 import AudioPage from "../components/page-content/AudioPage";
-import Spinner from "../components/Spinner";
 import { useAudioHelper } from "../hooks/useAudioHelper";
 import DefaultLayout from "../layouts/DefaultLayout";
 import { AllAudio, AudioNode } from "../model/audio";
@@ -19,6 +18,14 @@ import { State } from "../redux/reducers";
 import { LoadingStatus, Status } from "../redux/reducers/audioReducer";
 import { smoothPageScroll } from "../util/smoothScroll";
 
+function removeHash() {
+  history.pushState(
+    "",
+    document.title,
+    window.location.pathname + window.location.search
+  );
+}
+
 interface IBookTemplate {
   pageContext: BookNode;
   allAudio: AllAudio;
@@ -26,9 +33,10 @@ interface IBookTemplate {
 }
 
 const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
-  const audioPlayer = useRef(null);
+  const audioPlayer = useRef<HTMLAudioElement>(null);
   const audioState: State["audio"] = useSelector((state: State) => state.audio);
   const dispatch = useDispatch();
+  const [showLoader, setShowLoader] = useState<boolean>(true);
 
   /**
    * When page first loads
@@ -37,7 +45,11 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
     dispatch(setPage(audioState.page));
     dispatch(setStatus(Status.STOPPED));
     dispatch(setLoadingStatus(LoadingStatus.LOADING));
-    setTimeout(() => smoothPageScroll(audioState.page), 500);
+    removeHash();
+
+    if (audioPlayer.current) {
+      setTimeout(() => smoothPageScroll(audioState.page), 1000);
+    }
     return onUnload;
   };
 
@@ -55,15 +67,11 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
     return onUnload;
   }, []);
 
-  const { allAudio } = useStaticQuery(query);
+  useEffect(() => {
+    removeHash();
+  }, [audioState.page]);
 
-  if (!audioState) {
-    return (
-      <DefaultLayout>
-        <Spinner />
-      </DefaultLayout>
-    );
-  }
+  const { allAudio } = useStaticQuery(query);
 
   const audio: AudioNode = allAudio?.nodes.find(
     (node: AudioNode) => node.book_id === pageContext.id

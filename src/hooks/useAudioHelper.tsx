@@ -15,7 +15,7 @@ interface IOffset {
 }
 
 interface PropTypes {
-  audioPlayer: HTMLAudioElement;
+  audioPlayer: HTMLAudioElement | undefined;
   audioState: State["audio"];
   offsets: IOffset;
 }
@@ -26,10 +26,11 @@ export const useAudioHelper = ({
   offsets,
 }: PropTypes) => {
   const dispatch = useDispatch();
-
   const [start, duration] = offsets[`part-${audioState.page}`];
 
   useEffect(() => {
+    audioPlayer?.load();
+
     return () => {
       stopAudio();
     };
@@ -43,27 +44,6 @@ export const useAudioHelper = ({
       dispatch(setLoadingStatus(LoadingStatus.READY));
     }
   }, [audioPlayer?.readyState]);
-
-  if (typeof window !== "undefined" && audioPlayer !== null) {
-    audioPlayer.ontimeupdate = () => {
-      onProgressAudio(audioPlayer?.currentTime);
-    };
-
-    audioPlayer.onended = () => {
-      stopAudio();
-    };
-
-    audioPlayer.onloadstart = () => {
-      dispatch(setLoadingStatus(LoadingStatus.LOADING));
-    };
-
-    audioPlayer.oncanplaythrough = () => {
-      if (audioState.loadingStatus !== LoadingStatus.READY) {
-        audioPlayer.currentTime = start / 1000;
-        dispatch(setLoadingStatus(LoadingStatus.READY));
-      }
-    };
-  }
 
   const playAudio = async () => {
     if (audioPlayer === null) {
@@ -180,6 +160,28 @@ export const useAudioHelper = ({
       }
     }
   }, 100);
+
+  // Listeners
+  if (typeof window !== "undefined" && audioPlayer !== null) {
+    audioPlayer.ontimeupdate = () => {
+      onProgressAudio(audioPlayer?.currentTime);
+    };
+
+    audioPlayer.onended = () => {
+      stopAudio();
+    };
+
+    audioPlayer.onloadstart = () => {
+      dispatch(setLoadingStatus(LoadingStatus.LOADING));
+    };
+
+    audioPlayer.oncanplaythrough = () => {
+      if (audioState.loadingStatus !== LoadingStatus.READY) {
+        audioPlayer.currentTime = start / 1000;
+        dispatch(setLoadingStatus(LoadingStatus.READY));
+      }
+    };
+  }
 
   return {
     onClickPlayToggle,
