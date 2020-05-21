@@ -201,7 +201,6 @@ const Navbar = React.forwardRef((props: any, searchRef) => {
 
   return (
     <>
-      <div></div>
       <AppBar position="sticky">
         <form onSubmit={(e) => props.onSubmitSearch(e, searchVal)}>
           <Toolbar>

@@ -1,5 +1,5 @@
 export const isInStandaloneMode = () => {
-  if (typeof window !== "undefined") {
+  if (typeof window === "object") {
     return (
       !!window.matchMedia("(display-mode: standalone)").matches ||
       !!window?.navigator?.standalone ||

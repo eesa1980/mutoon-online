@@ -19,7 +19,6 @@ const SEO = ({ title, description, image, article }: any) => {
     description: description || defaultDescription,
     image: `${siteUrl}${image || defaultImage}`,
     url: `${siteUrl}${pathname}`,
-    statusBarStyle: "black",
   };
   return (
     <Helmet title={seo.title} titleTemplate={titleTemplate}>
@@ -37,12 +36,12 @@ const SEO = ({ title, description, image, article }: any) => {
         <meta name="twitter:creator" content={twitterUsername} />
       )}
       {seo.title && <meta name="twitter:title" content={seo.title} />}
-      <meta name="apple-mobile-web-app-capable" content="yes"></meta>
-      <meta name="apple-mobile-web-app-status-bar-style" content="black" />
       {seo.description && (
         <meta name="twitter:description" content={seo.description} />
       )}
       {seo.image && <meta name="twitter:image" content={seo.image} />}
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-status-bar-style" content="black" />
       <link
         href="https://fonts.googleapis.com/css?family=Lateef|Roboto:400,700&display=swap&subset=arabic"
         rel="stylesheet"

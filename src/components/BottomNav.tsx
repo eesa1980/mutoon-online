@@ -13,11 +13,11 @@ import { ActiveBook, Settings } from "../model/state";
 const useStyles = makeStyles({
   root: {
     position: "sticky",
-    paddingBottom: "calc(env(safe-area-inset-bottom)",
+    paddingBottom: "env(safe-area-inset-bottom)",
     bottom: 0,
     left: 0,
     width: "100%",
-    height: "calc(env(safe-area-inset-bottom) + 64px)",
+    height: "calc((env(safe-area-inset-bottom) + 64px))",
   },
 });
 

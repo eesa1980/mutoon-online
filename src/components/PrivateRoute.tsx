@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { State } from "../redux/reducers";
+import { State } from "../model";
 
 const PrivateRoute = (props: any) => {
   const [loggedIn, setLoggedIn] = useState(false);
