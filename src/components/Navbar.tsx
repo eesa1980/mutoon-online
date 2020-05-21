@@ -35,9 +35,6 @@ const drawerWidth = 240;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {
-      flexGrow: 1,
-    },
     menuButton: {
       marginRight: theme.spacing(2),
     },
@@ -110,6 +107,8 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const Navbar = React.forwardRef((props: any, searchRef) => {
+  const [searchVal, setSearchVal] = React.useState<string>("");
+
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState<boolean>(false);
@@ -139,6 +138,10 @@ const Navbar = React.forwardRef((props: any, searchRef) => {
   const isActivePage = (slug: string) =>
     (typeof window === "object" && window.location.pathname.includes(slug)) ||
     false;
+
+  const onChangeSearch = (e: any) => {
+    setSearchVal(e.target.value);
+  };
 
   const drawer = (
     <div>
@@ -198,8 +201,9 @@ const Navbar = React.forwardRef((props: any, searchRef) => {
 
   return (
     <>
+      <div></div>
       <AppBar position="sticky">
-        <form onSubmit={props.onSubmitSearch}>
+        <form onSubmit={(e) => props.onSubmitSearch(e, searchVal)}>
           <Toolbar>
             <IconButton
               edge="start"
@@ -226,7 +230,7 @@ const Navbar = React.forwardRef((props: any, searchRef) => {
                 type="search"
                 autoFocus={false}
                 fullWidth={true}
-                onChange={props.onChangeSearch}
+                onChange={onChangeSearch}
                 placeholder="Search..."
                 classes={{
                   root: classes.inputRoot,

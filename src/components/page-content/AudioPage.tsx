@@ -4,11 +4,13 @@ import StopIcon from "@material-ui/icons/Stop";
 import * as React from "react";
 import { Dispatch } from "redux";
 import styled from "styled-components";
+import { LoadingStatus, Status } from "../../enum";
 import { Content } from "../../model/book";
-import { setPage, setStatus } from "../../redux/actions/audioActions";
-import { State } from "../../redux/reducers";
-import { LoadingStatus, Status } from "../../redux/reducers/audioReducer";
+import { ActiveBook, AudioState, Settings } from "../../model/state";
+import { setStatus } from "../../redux/actions/activeBookActions";
+import { setPage } from "../../redux/actions/audioActions";
 import { PaperStyled, PaperStyledTitle } from "../../styled/PaperStyled";
+import { updateHash } from "../../util/urlHash";
 import Spinner from "../Spinner";
 import { PageProps } from "./Page";
 import PageNumber from "./PageNumber";
@@ -18,9 +20,11 @@ interface AudioPageProps extends PageProps {
   title: string;
   page_number: number;
   content: Content;
-  audioState?: State["audio"];
+  audioState?: AudioState;
+  settings: Settings;
   dispatch: Dispatch<any>;
   onClickPlayToggle: any;
+  activeBook: ActiveBook;
 }
 
 const HashMarker = styled.span`
@@ -44,13 +48,14 @@ const AudioPage: React.FC<AudioPageProps> = ({
   audioState,
   dispatch,
   onClickPlayToggle,
+  activeBook,
 }) => {
   const Wrapper = getWrapper(page_number);
 
   const shouldShowSpinner =
     audioState.loadingStatus === LoadingStatus.LOADING &&
     page_number === audioState.page &&
-    audioState.status === Status.PLAYING;
+    activeBook.status === Status.PLAYING;
 
   return (
     <Wrapper
@@ -61,10 +66,13 @@ const AudioPage: React.FC<AudioPageProps> = ({
       }}
     >
       <ButtonBaseStyled
-        onClick={() => {
-          if (page_number > 0) {
+        onClick={(e: any) => {
+          e.preventDefault();
+          if (page_number > 0 && page_number !== audioState.page) {
             dispatch(setPage(page_number));
-            dispatch(setStatus(Status.STOPPED));
+            if (activeBook.status !== Status.STOPPED) {
+              dispatch(setStatus(Status.STOPPED));
+            }
           }
         }}
         disabled={page_number < 1}
@@ -86,18 +94,20 @@ const AudioPage: React.FC<AudioPageProps> = ({
               fullWidth
               variant={page_number !== audioState.page ? "text" : "contained"}
               color="primary"
-              onClick={onClickPlayToggle}
+              onClick={() => {
+                updateHash(page_number, onClickPlayToggle);
+              }}
               size="large"
               disabled={page_number !== audioState.page}
               endIcon={
-                audioState.status === Status.PLAYING ? (
+                activeBook.status === Status.PLAYING ? (
                   <StopIcon />
                 ) : (
                   <PlayArrowIcon />
                 )
               }
             >
-              {audioState.status === Status.PLAYING ? "stop" : "play"}
+              {activeBook.status === Status.PLAYING ? "stop" : "play"}
             </Button>
           </ButtonGroup>
         )}

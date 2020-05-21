@@ -6,26 +6,21 @@ import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import BottomNav from "../components/BottomNav";
 import AudioPage from "../components/page-content/AudioPage";
+import { LoadingStatus, Status } from "../enum";
 import { useAudioHelper } from "../hooks/useAudioHelper";
 import DefaultLayout from "../layouts/DefaultLayout";
 import { AllAudio, AudioNode } from "../model/audio";
 import { BookNode } from "../model/book";
-import {
-  setLoadingStatus,
-  setPage,
-  setStatus,
-} from "../redux/actions/audioActions";
-import { State } from "../redux/reducers";
-import { LoadingStatus, Status } from "../redux/reducers/audioReducer";
+import { ActiveBook, AudioState, Settings, State } from "../model/state";
+import { setActiveBook, setStatus } from "../redux/actions/activeBookActions";
+import { setLoadingStatus, setPage } from "../redux/actions/audioActions";
 import { FloatingTitle } from "../styled/FloatingTitle";
 import { smoothPageScroll } from "../util/smoothScroll";
+import { getHashPage, updateHash } from "../util/urlHash";
 
-const removeHash = () => {
-  history.pushState(
-    "",
-    document.title,
-    window.location.pathname + window.location.search
-  );
+export const INITIAL_AUDIO_STATE = {
+  page: 1,
+  loadingStatus: LoadingStatus.INACTIVE,
 };
 
 interface IBookTemplate {
@@ -36,41 +31,7 @@ interface IBookTemplate {
 
 const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
   const audioPlayer = useRef<HTMLAudioElement>(null);
-  const audioState: State["audio"] = useSelector((state: State) => state.audio);
   const dispatch = useDispatch();
-
-  /**
-   * When page first loads
-   */
-  const onLoad = () => {
-    dispatch(setPage(audioState.page));
-    dispatch(setStatus(Status.STOPPED));
-    dispatch(setLoadingStatus(LoadingStatus.LOADING));
-    removeHash();
-
-    if (audioPlayer.current) {
-      setTimeout(() => smoothPageScroll(audioState.page), 1000);
-    }
-    return onUnload;
-  };
-
-  /**
-   * Just before page unloads
-   */
-  const onUnload = () => {
-    dispatch(setPage(1));
-    dispatch(setStatus(Status.STOPPED));
-    dispatch(setLoadingStatus(LoadingStatus.INACTIVE));
-  };
-
-  useEffect(() => {
-    onLoad();
-    return onUnload;
-  }, []);
-
-  useEffect(() => {
-    removeHash();
-  }, [audioState.page]);
 
   const { allAudio } = useStaticQuery(query);
 
@@ -78,10 +39,68 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
     (node: AudioNode) => node.book_id === pageContext.id
   );
 
+  const audioState: AudioState = useSelector((state: State) => ({
+    ...INITIAL_AUDIO_STATE,
+    ...state.audio[pageContext.id],
+  }));
+
+  const activeBook: ActiveBook = useSelector(
+    (state: State) => state.activeBook
+  );
+
+  const settings: Settings = useSelector((state: State) => state.settings);
+
+  /**
+   * When page first loads
+   */
+  const onLoad = () => {
+    const hashPage = getHashPage();
+
+    dispatch(setActiveBook(pageContext));
+    dispatch(setStatus(Status.STOPPED));
+    dispatch(setLoadingStatus(LoadingStatus.LOADING));
+
+    if (audioPlayer.current) {
+      setTimeout(() => {
+        try {
+          smoothPageScroll(hashPage);
+          dispatch(setPage(hashPage));
+        } catch (err) {
+          try {
+            updateHash(audioState.page, (page: number) => {
+              dispatch(setPage(page));
+              smoothPageScroll(page);
+            });
+          } catch (err) {
+            updateHash(1, (page: number) => {
+              dispatch(setPage(page));
+              smoothPageScroll(page);
+            });
+          }
+        }
+      }, 1000);
+    }
+  };
+
+  /**
+   * Just before page unloads
+   */
+  const onUnload = () => {
+    dispatch(setStatus(Status.STOPPED));
+    dispatch(setLoadingStatus(LoadingStatus.INACTIVE));
+  };
+
+  useEffect(() => {
+    onLoad();
+    return onUnload();
+  }, []);
+
   const helper = useAudioHelper({
+    activeBook,
     audioPlayer: audioPlayer.current,
     audioState,
     offsets: JSON.parse(audio?.offset || "{}"),
+    settings,
   });
 
   return (
@@ -104,8 +123,10 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
               content={con}
               title={pageContext.title}
               audioState={audioState}
+              activeBook={activeBook}
               dispatch={dispatch}
               onClickPlayToggle={helper.onClickPlayToggle}
+              settings={settings}
             />
           );
         })}
@@ -113,7 +134,8 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
       <BottomNav
         onClickPlayHandler={helper.onClickPlayToggle}
         onClickLoopHandler={helper.onClickLoopToggle}
-        audioState={audioState}
+        activeBook={activeBook}
+        settings={settings}
       />
     </DefaultLayout>
   );

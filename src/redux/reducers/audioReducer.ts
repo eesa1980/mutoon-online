@@ -1,71 +1,25 @@
-import { User } from "netlify-identity-widget";
-import {
-  PAUSE_AUDIO,
-  PLAY_AUDIO,
-  SET_LOADING_STATUS,
-  SET_PAGE,
-  SET_PLAY_TYPE,
-  SET_SRC,
-  SET_STATUS,
-  STOP_AUDIO,
-} from "../actions/audioActions";
+import { cloneDeep } from "lodash-es";
+import { State } from "../../model/state";
+import { INITIAL_AUDIO_STATE } from "../../templates/Book";
+import { loadState } from "../../util/localStorage";
+import { SET_LOADING_STATUS, SET_PAGE } from "../actions/";
 
-interface Audio {
-  player?: HTMLAudioElement;
-  page: number;
-  src: string;
-  playType: PlayType;
-  status: Status;
-  loadingStatus: LoadingStatus;
-}
-
-export interface State {
-  audio: Audio;
-  user: User | {};
-}
-
-export enum Status {
-  PLAYING = "playing",
-  STOPPED = "stopped",
-  PAUSED = "paused",
-  INACTIVE = "inactive",
-  ERROR = "error",
-}
-
-export enum PlayType {
-  PLAY_ONCE = "play-once",
-  LOOPING = "looping",
-  CONTINUOUS = "continuous",
-}
-
-export enum LoadingStatus {
-  INACTIVE = "inactive",
-  LOADING = "loading",
-  READY = "READY",
-}
-
-const INITIAL_STATE: State["audio"] = {
-  page: 1,
-  src: "",
-  playType: PlayType.CONTINUOUS,
-  status: Status.INACTIVE,
-  loadingStatus: LoadingStatus.INACTIVE,
-};
+const INITIAL_STATE: State["audio"] = {};
 
 export const audioReducer = (state = INITIAL_STATE, action: any) => {
   switch (action.type) {
-    case SET_SRC:
-    case PLAY_AUDIO:
-    case STOP_AUDIO:
-    case PAUSE_AUDIO:
-    case SET_STATUS:
     case SET_PAGE:
-    case SET_PLAY_TYPE:
     case SET_LOADING_STATUS:
-      return {
-        ...state,
+      const cloned: State["audio"] = cloneDeep(state);
+      const persistedState: State = loadState();
+
+      cloned[persistedState?.activeBook?.id] = {
+        ...INITIAL_AUDIO_STATE,
+        ...cloned[persistedState?.activeBook?.id],
         ...action.payload,
       };
+
+      return { ...state, ...cloned };
     default:
       return state;
   }

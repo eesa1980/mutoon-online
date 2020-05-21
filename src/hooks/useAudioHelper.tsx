@@ -1,14 +1,12 @@
 import throttle from "lodash-es/throttle";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import {
-  setLoadingStatus,
-  setPage,
-  setPlayType,
-  setStatus,
-} from "../redux/actions";
-import { LoadingStatus, PlayType, State, Status } from "../redux/reducers";
+import { LoadingStatus, PlayType, Status } from "../enum";
+import { ActiveBook, Settings, State } from "../model/state";
+import { setLoadingStatus, setPlayType, setStatus } from "../redux/actions";
+import { setPage } from "../redux/actions/audioActions";
 import { smoothPageScroll } from "../util/smoothScroll";
+import { updateHash } from "../util/urlHash";
 
 interface IOffset {
   [key: string]: number[];
@@ -16,17 +14,28 @@ interface IOffset {
 
 interface PropTypes {
   audioPlayer: HTMLAudioElement | undefined;
-  audioState: State["audio"];
+  audioState: State["audio"][string];
+  activeBook: ActiveBook;
   offsets: IOffset;
+  settings: Settings;
 }
 
 export const useAudioHelper = ({
   audioPlayer,
   audioState,
   offsets,
+  activeBook,
+  settings,
 }: PropTypes) => {
   const dispatch = useDispatch();
-  const [start, duration] = offsets[`part-${audioState.page}`];
+  let start: number;
+  let duration: number;
+
+  try {
+    [start, duration] = offsets[`part-${audioState.page}`];
+  } catch {
+    [start, duration] = offsets[`part-${1}`];
+  }
 
   useEffect(() => {
     audioPlayer?.load();
@@ -50,7 +59,7 @@ export const useAudioHelper = ({
       return;
     }
 
-    if (audioState.status !== Status.PAUSED) {
+    if (activeBook.status !== Status.PAUSED) {
       audioPlayer.currentTime = start / 1000;
       smoothPageScroll(audioState.page);
     }
@@ -76,7 +85,7 @@ export const useAudioHelper = ({
   };
 
   const toggleAudio = async () => {
-    switch (audioState.status) {
+    switch (activeBook.status) {
       case Status.STOPPED:
         return stopAudio();
       case Status.PAUSED:
@@ -86,13 +95,13 @@ export const useAudioHelper = ({
     }
   };
 
-  useEffect(() => void toggleAudio(), [audioState.status]);
+  useEffect(() => void toggleAudio(), [activeBook.status]);
 
   /**
    * When play button is pressed
    */
   const onClickPlayToggle = async () => {
-    switch (audioState.status) {
+    switch (activeBook.status) {
       case Status.INACTIVE:
       case Status.STOPPED:
       case Status.PAUSED:
@@ -111,7 +120,7 @@ export const useAudioHelper = ({
   const onClickLoopToggle = () => {
     dispatch(setStatus(Status.STOPPED));
 
-    switch (audioState.playType) {
+    switch (settings.playType) {
       case PlayType.PLAY_ONCE:
         dispatch(setPlayType(PlayType.LOOPING));
         break;
@@ -139,8 +148,8 @@ export const useAudioHelper = ({
 
     const reachedEnd = currentTime * 1000 >= start + duration;
 
-    if (audioState.status === Status.PLAYING && reachedEnd) {
-      switch (audioState.playType) {
+    if (activeBook.status === Status.PLAYING && reachedEnd) {
+      switch (settings.playType) {
         case PlayType.PLAY_ONCE:
           dispatch(setStatus(Status.STOPPED));
           resetTime();
@@ -151,9 +160,15 @@ export const useAudioHelper = ({
           return;
 
         case PlayType.CONTINUOUS:
-          dispatch(setPage(audioState.page + 1));
-          smoothPageScroll(audioState.page + 1);
-          return;
+          console.log("page :>> ", audioState.page);
+          if (audioState.page < Object.keys(offsets).length) {
+            return updateHash(audioState.page + 1, (page: number) => {
+              smoothPageScroll(page);
+              dispatch(setPage(page));
+            });
+          }
+
+          return dispatch(setStatus(Status.STOPPED));
 
         default:
           break;

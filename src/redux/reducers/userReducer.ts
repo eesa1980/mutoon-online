@@ -1,5 +1,5 @@
+import { State } from "../../model";
 import { SET_USER } from "../actions/userActions";
-import { State } from "./audioReducer";
 
 const INITIAL_STATE: State["user"] = {};
 

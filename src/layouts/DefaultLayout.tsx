@@ -89,14 +89,11 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = (props) => {
 
   theme = responsiveFontSizes(theme);
 
-  const onChangeSearch = (val: string) => {
-    const stripped = compose(stripTashkeel)(val);
-    setSearchVal(stripped);
-  };
-
-  const onSubmitSearch = (e: any) => {
+  const onSubmitSearch = (e: any, value: string) => {
     e.preventDefault();
-    navigate("/search/?term=" + searchVal);
+
+    const stripped = compose(stripTashkeel)(value);
+    navigate("/search/?term=" + stripped);
   };
 
   return (
@@ -122,11 +119,8 @@ const DefaultLayout: React.FC<DefaultLayoutProps> = (props) => {
       </Hidden>
       <ThemeProvider theme={theme}>
         <SEO title={props.title} />
-        <Navbar
-          onChangeSearch={(e: any) => onChangeSearch(e.target.value)}
-          onSubmitSearch={onSubmitSearch}
-          ref={searchRef}
-        />
+        <Navbar onSubmitSearch={onSubmitSearch} ref={searchRef} />
+
         {props.children}
       </ThemeProvider>
     </Background>

@@ -1,16 +1,23 @@
+import throttle from "lodash-es/throttle";
 import { applyMiddleware, combineReducers, compose, createStore } from "redux";
 import thunk from "redux-thunk";
-// @ts-ignore
+import { loadState, saveState } from "../../util/localStorage";
 import { audioReducer } from "../reducers";
+import { activeBookReducer } from "../reducers/activeBook";
+import { settingsReducer } from "../reducers/settingsReducer";
 import { userReducer } from "../reducers/userReducer";
 
-const reducer = combineReducers({ audio: audioReducer, user: userReducer });
+const persistedState = loadState();
 
-// @ts-ignore
-// const devTools = window.__REDUX_DEVTOOLS_EXTENSION__;
+const reducer = combineReducers({
+  audio: audioReducer,
+  user: userReducer,
+  activeBook: activeBookReducer,
+  settings: settingsReducer,
+});
 
 // preloadedState will be passed in by the plugin
-export default (preloadedState) => {
+export default () => {
   const composeEnhancers =
     typeof window === "object" && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
       ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
@@ -20,8 +27,19 @@ export default (preloadedState) => {
 
   const enhancer = composeEnhancers(
     applyMiddleware(thunk)
+
     // other store enhancers if any
   );
 
-  return createStore(reducer, enhancer);
+  const store = createStore(reducer, persistedState, enhancer);
+
+  store.subscribe(
+    throttle(() => {
+      saveState({
+        ...store.getState(),
+      });
+    }, 1000)
+  );
+
+  return store;
 };
