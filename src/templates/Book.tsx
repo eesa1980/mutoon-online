@@ -50,34 +50,39 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
 
   const settings: Settings = useSelector((state: State) => state.settings);
 
+  const initCurrentPage = (pg: number) =>
+    new Promise((resolve) => {
+      try {
+        updateHash(pg, (page: number) => {
+          dispatch(setPage(page));
+          smoothPageScroll(page);
+        });
+        resolve(pg);
+      } catch (err) {
+        resolve(undefined);
+      }
+    });
+
   /**
    * When page first loads
    */
-  const onLoad = () => {
+  const onLoad = async () => {
     const hashPage = getHashPage();
 
     dispatch(setActiveBook(pageContext));
     dispatch(setStatus(Status.STOPPED));
-    dispatch(setLoadingStatus(LoadingStatus.LOADING));
 
     if (audioPlayer.current) {
-      setTimeout(() => {
-        try {
-          smoothPageScroll(hashPage);
-          dispatch(setPage(hashPage));
-        } catch (err) {
-          try {
-            updateHash(audioState.page, (page: number) => {
-              dispatch(setPage(page));
-              smoothPageScroll(page);
-            });
-          } catch (err) {
-            updateHash(1, (page: number) => {
-              dispatch(setPage(page));
-              smoothPageScroll(page);
-            });
-          }
+      setTimeout(async () => {
+        if (await initCurrentPage(hashPage)) {
+          return;
         }
+
+        if (await initCurrentPage(audioState.page)) {
+          return;
+        }
+
+        await initCurrentPage(1);
       }, 1000);
     }
   };
