@@ -3,6 +3,7 @@ import { graphql, useStaticQuery } from "gatsby";
 import * as PropTypes from "prop-types";
 import * as React from "react";
 import { Helmet } from "react-helmet";
+
 const SEO = ({ title, description, image, article }: any) => {
   const { pathname } = useLocation();
   const { site } = useStaticQuery(query);
