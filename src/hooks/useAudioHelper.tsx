@@ -126,7 +126,10 @@ export const useAudioHelper = ({
    * Polls audio to select correct page
    */
   const onProgressAudio = throttle((currentTime: number) => {
-    if (currentTime * 1000 > start && activeBook.status === Status.PLAYING) {
+    const isReadyToPlay =
+      currentTime * 1000 > start && activeBook.status === Status.PLAYING;
+
+    if (isReadyToPlay) {
       dispatch(setLoadingStatus(LoadingStatus.READY));
     }
 
