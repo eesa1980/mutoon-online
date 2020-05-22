@@ -160,7 +160,6 @@ export const useAudioHelper = ({
           return;
 
         case PlayType.CONTINUOUS:
-          console.log("page :>> ", audioState.page);
           if (audioState.page < Object.keys(offsets).length) {
             return updateHash(audioState.page + 1, (page: number) => {
               smoothPageScroll(page);
