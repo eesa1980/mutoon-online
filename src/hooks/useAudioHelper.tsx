@@ -37,17 +37,6 @@ export const useAudioHelper = ({
     [start, duration] = offsets[`part-${1}`];
   }
 
-  useEffect(() => {
-    if (
-      audioPlayer?.readyState >= 3 &&
-      audioState.loadingStatus !== LoadingStatus.READY
-    ) {
-      dispatch(setLoadingStatus(LoadingStatus.READY));
-    } else if (audioState.loadingStatus === LoadingStatus.READY) {
-      dispatch(setLoadingStatus(LoadingStatus.LOADING));
-    }
-  }, [audioPlayer?.readyState]);
-
   const playAudio = async () => {
     if (audioPlayer === null) {
       return;
@@ -99,6 +88,7 @@ export const useAudioHelper = ({
       case Status.INACTIVE:
       case Status.STOPPED:
       case Status.PAUSED:
+        dispatch(setLoadingStatus(LoadingStatus.LOADING));
         await playAudio();
         return dispatch(setStatus(Status.PLAYING));
       case Status.PLAYING:
@@ -136,6 +126,10 @@ export const useAudioHelper = ({
    * Polls audio to select correct page
    */
   const onProgressAudio = throttle((currentTime: number) => {
+    if (currentTime * 1000 > start && activeBook.status === Status.PLAYING) {
+      dispatch(setLoadingStatus(LoadingStatus.READY));
+    }
+
     const resetTime = () => {
       audioPlayer.currentTime = start / 1000;
     };
@@ -177,6 +171,12 @@ export const useAudioHelper = ({
 
     audioPlayer.onended = () => {
       stopAudio();
+    };
+
+    audioPlayer.onplaying = () => {
+      if (audioPlayer?.currentTime > start) {
+        dispatch(setLoadingStatus(LoadingStatus.READY));
+      }
     };
   }
 

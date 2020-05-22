@@ -2,7 +2,7 @@ export const updateHash = (hash: number, cb?: any) => {
   history.replaceState(
     "",
     document.title,
-    window?.location.pathname + window.location.search + "#page-" + hash
+    window?.location.pathname + "?page-" + hash
   );
 
   if (cb) {
@@ -11,5 +11,5 @@ export const updateHash = (hash: number, cb?: any) => {
 };
 
 export const getHashPage = () => {
-  return parseInt(window?.location.hash.split("page-")[1], 10);
+  return parseInt(window?.location.search.split("page-")[1], 10);
 };
