@@ -38,19 +38,13 @@ export const useAudioHelper = ({
   }
 
   useEffect(() => {
-    audioPlayer?.load();
-
-    return () => {
-      stopAudio();
-    };
-  }, []);
-
-  useEffect(() => {
     if (
-      audioPlayer?.readyState > 3 &&
+      audioPlayer?.readyState >= 3 &&
       audioState.loadingStatus !== LoadingStatus.READY
     ) {
       dispatch(setLoadingStatus(LoadingStatus.READY));
+    } else if (audioState.loadingStatus === LoadingStatus.READY) {
+      dispatch(setLoadingStatus(LoadingStatus.LOADING));
     }
   }, [audioPlayer?.readyState]);
 
@@ -183,17 +177,6 @@ export const useAudioHelper = ({
 
     audioPlayer.onended = () => {
       stopAudio();
-    };
-
-    audioPlayer.onloadstart = () => {
-      dispatch(setLoadingStatus(LoadingStatus.LOADING));
-    };
-
-    audioPlayer.oncanplaythrough = () => {
-      if (audioState.loadingStatus !== LoadingStatus.READY) {
-        audioPlayer.currentTime = start / 1000;
-        dispatch(setLoadingStatus(LoadingStatus.READY));
-      }
     };
   }
 
