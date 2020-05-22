@@ -68,7 +68,7 @@ const AudioPage: React.FC<AudioPageProps> = ({
         onClick={(e: any) => {
           e.preventDefault();
           if (page_number > 0 && page_number !== audioState.page) {
-            dispatch(setPage(page_number));
+            updateHash(page_number, (page: number) => dispatch(setPage(page)));
             if (activeBook.status !== Status.STOPPED) {
               dispatch(setStatus(Status.STOPPED));
             }
@@ -93,9 +93,7 @@ const AudioPage: React.FC<AudioPageProps> = ({
               fullWidth
               variant={page_number !== audioState.page ? "text" : "contained"}
               color="primary"
-              onClick={() => {
-                updateHash(page_number, onClickPlayToggle);
-              }}
+              onClick={onClickPlayToggle}
               size="large"
               disabled={page_number !== audioState.page}
               endIcon={
