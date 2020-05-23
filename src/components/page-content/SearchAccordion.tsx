@@ -23,7 +23,7 @@ const Content = ({ book }: { book: BookNode }) => {
           <ButtonBase
             onClick={() => {
               dispatch(setPage(content.page_number));
-              navigate(`${book.slug}#page-${content.page_number}`);
+              navigate(`${book.slug}?page-${content.page_number}`);
             }}
             key={`${book.title}-${i}`}
             title={`Go to page ${content.page_number} of ${book.title}`}

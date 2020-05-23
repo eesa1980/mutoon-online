@@ -28,7 +28,6 @@ import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
 import { graphql, navigate, useStaticQuery } from "gatsby";
 import * as React from "react";
-import { useDispatch } from "react-redux";
 import { AllCategory, CategoryNode } from "../model/category";
 
 const drawerWidth = 240;
@@ -112,7 +111,6 @@ const Navbar = React.forwardRef((props: any, searchRef) => {
   const classes = useStyles();
   const theme = useTheme();
   const [open, setOpen] = React.useState<boolean>(false);
-  const dispatch = useDispatch();
 
   const data: { allCategory: AllCategory } = useStaticQuery(navbarQuery);
 
