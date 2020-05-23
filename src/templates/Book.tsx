@@ -69,36 +69,6 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
 
   const settings: Settings = useSelector((state: State) => state.settings);
 
-  const setCurrentPage = (pg: number, isHash?: boolean) =>
-    new Promise((resolve) => {
-      try {
-        if (isNaN(pg)) {
-          throw Error;
-        }
-
-        if (isHash) {
-          dispatch(setPage(pg));
-          helper.onChangeRangeHandler({
-            start: pg,
-            end: pg + 1,
-          });
-        } else {
-          updateHash(pg, (page: number) => {
-            dispatch(setPage(page));
-            helper.onChangeRangeHandler({
-              start: page,
-              end: page + 1,
-            });
-          });
-        }
-
-        smoothPageScroll(pg);
-        resolve(pg);
-      } catch (err) {
-        resolve(undefined);
-      }
-    });
-
   /**
    * When page first loads
    */
@@ -114,15 +84,48 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
 
     if (audioPlayer.current) {
       setTimeout(async () => {
-        if (await setCurrentPage(hashPage, true)) {
-          return;
-        }
+        try {
+          // If valid hash exists
+          if (!isNaN(hashPage) && hashPage < pageContext.content.length) {
+            dispatch(setPage(hashPage));
+            helper.onChangeRangeHandler({
+              start: hashPage,
+              end: hashPage + 1,
+            });
 
-        if (await setCurrentPage(audioState.page)) {
-          return;
-        }
+            smoothPageScroll(hashPage);
 
-        await setCurrentPage(1);
+            return;
+          }
+
+          // Otherwise if we have saved page
+          if (
+            !isNaN(audioState.page) &&
+            audioState.page < pageContext.content.length
+          ) {
+            updateHash(audioState.page, (page: number) => {
+              helper.onChangeRangeHandler({
+                start: page,
+                end: page + 1,
+              });
+
+              smoothPageScroll(page);
+            });
+
+            return;
+          }
+
+          throw Error;
+        } catch (err) {
+          updateHash(1, (page: number) => {
+            dispatch(setPage(page));
+            helper.onChangeRangeHandler({
+              start: page,
+              end: page + 1,
+            });
+            smoothPageScroll(page);
+          });
+        }
       }, 1000);
     }
   };

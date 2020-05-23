@@ -39,14 +39,19 @@ export const useAudioHelper = ({
     end: cloneDeep(audioState.page) + 1,
   });
 
-  let start: number;
-  let duration: number;
+  const [[start, duration], setOffset] = useState<any>(offsets[`part-1`]);
 
-  try {
-    [start, duration] = offsets[`part-${audioState.page || 1}`];
-  } catch (err) {
-    [start, duration] = offsets[`part-1`];
-  }
+  useEffect(() => {
+    if (activeBook.status === Status.PLAYING) {
+      smoothPageScroll(audioState.page);
+    }
+
+    try {
+      setOffset(offsets[`part-${audioState.page}`]);
+    } catch (err) {
+      setOffset(offsets[`part-1`]);
+    }
+  }, [audioState.page]);
 
   const playAudio = async () => {
     if (audioPlayer === null) {
@@ -140,10 +145,10 @@ export const useAudioHelper = ({
     }
   };
 
-  const scrollToPage = (page: number) => {
-    smoothPageScroll(page);
-    dispatch(setPage(page));
-  };
+  // const scrollToPage = (page: number) => {
+  //   smoothPageScroll(page);
+  //   dispatch(setPage(page));
+  // };
 
   /**
    * Polls audio to select correct page
@@ -177,7 +182,9 @@ export const useAudioHelper = ({
 
         case PlayType.CONTINUOUS:
           if (audioState.page < Object.keys(offsets).length) {
-            return updateHash(audioState.page + 1, scrollToPage);
+            return updateHash(audioState.page + 1, (page: number) =>
+              dispatch(setPage(page))
+            );
           }
 
           return dispatch(setStatus(Status.STOPPED));
@@ -187,10 +194,14 @@ export const useAudioHelper = ({
             // Reset range
             const [rSt] = offsets[`part-${range.start}`];
             audioPlayer.currentTime = rSt / 1000;
-            return updateHash(range.start, scrollToPage);
+            return updateHash(range.start, (page: number) =>
+              dispatch(setPage(page))
+            );
           }
 
-          return updateHash(audioState.page + 1, scrollToPage);
+          return updateHash(audioState.page + 1, (page: number) =>
+            dispatch(setPage(page))
+          );
 
         default:
           break;
