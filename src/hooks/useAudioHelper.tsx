@@ -41,27 +41,32 @@ export const useAudioHelper = ({
 
   const [[start, duration], setOffset] = useState<any>(offsets[`part-1`]);
 
+  const updateOffset = (key: string) => {
+    if (audioPlayer) {
+      const [st, dur] = offsets[key];
+      audioPlayer.currentTime = st / 1000;
+      setOffset([st, dur]);
+    }
+  };
+
   useEffect(() => {
     if (activeBook.status === Status.PLAYING) {
       smoothPageScroll(audioState.page);
     }
 
     try {
-      setOffset(offsets[`part-${audioState.page}`]);
+      updateOffset(`part-${audioState.page}`);
     } catch (err) {
-      setOffset(offsets[`part-1`]);
+      updateOffset(`part-1`);
     }
-  }, [audioState.page]);
+  }, [audioState.page, audioPlayer?.src]);
 
   const playAudio = async () => {
     if (audioPlayer === null) {
       return;
     }
 
-    if (activeBook.status !== Status.PAUSED) {
-      audioPlayer.currentTime = start / 1000;
-      smoothPageScroll(audioState.page);
-    }
+    smoothPageScroll(audioState.page);
 
     await audioPlayer.play();
   };
@@ -217,6 +222,10 @@ export const useAudioHelper = ({
 
     audioPlayer.onended = () => {
       stopAudio();
+    };
+
+    audioPlayer.oncanplay = () => {
+      audioPlayer.currentTime = start;
     };
   }
 
