@@ -72,6 +72,10 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
   const setCurrentPage = (pg: number, isHash?: boolean) =>
     new Promise((resolve) => {
       try {
+        if (isNaN(pg)) {
+          throw Error;
+        }
+
         if (isHash) {
           dispatch(setPage(pg));
           helper.onChangeRangeHandler({
