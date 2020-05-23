@@ -24,7 +24,7 @@ import { getHashPage, updateHash } from "../util/urlHash";
 
 export const INITIAL_AUDIO_STATE = {
   page: 1,
-  loadingStatus: LoadingStatus.INACTIVE,
+  loadingStatus: LoadingStatus.LOADING,
 };
 
 const FormWrapper = withTheme(styled.div`
@@ -74,7 +74,6 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
       try {
         updateHash(pg, (page: number) => {
           dispatch(setPage(page));
-          smoothPageScroll(page);
           helper.onChangeRangeHandler({
             start: page,
             end: page + 1,
@@ -94,19 +93,25 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
 
     dispatch(setActiveBook(pageContext));
     dispatch(setStatus(Status.STOPPED));
-    dispatch(setLoadingStatus(LoadingStatus.LOADING));
+
+    if (audioState.loadingStatus !== LoadingStatus.LOADING) {
+      dispatch(setLoadingStatus(LoadingStatus.LOADING));
+    }
 
     if (audioPlayer.current) {
       setTimeout(async () => {
         if (await setCurrentPage(hashPage)) {
+          smoothPageScroll(hashPage);
           return;
         }
 
         if (await setCurrentPage(audioState.page)) {
+          smoothPageScroll(audioState.page);
           return;
         }
 
         await setCurrentPage(1);
+        smoothPageScroll(1);
       }, 1000);
     }
   };
@@ -116,7 +121,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
    */
   const onUnload = () => {
     dispatch(setStatus(Status.STOPPED));
-    dispatch(setLoadingStatus(LoadingStatus.INACTIVE));
+    dispatch(setLoadingStatus(LoadingStatus.LOADING));
   };
 
   useEffect(() => {
