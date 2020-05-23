@@ -1,3 +1,4 @@
+import { cloneDeep } from "lodash-es";
 import throttle from "lodash-es/throttle";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -34,17 +35,18 @@ export const useAudioHelper = ({
 }: PropTypes) => {
   const dispatch = useDispatch();
   const [range, setRange] = useState<Range>({
-    start: audioState.page,
-    end: audioState.page + 1,
+    start: cloneDeep(audioState.page),
+    end: cloneDeep(audioState.page) + 1,
   });
 
   let start: number;
   let duration: number;
 
   try {
-    [start, duration] = offsets[`part-${audioState.page}`];
-  } catch {
-    [start, duration] = offsets[`part-${1}`];
+    [start, duration] = offsets[`part-${audioState.page || 1}`];
+  } catch (err) {
+    console.log("err :>> ", err);
+    [start, duration] = offsets[`part-1`];
   }
 
   const playAudio = async () => {
