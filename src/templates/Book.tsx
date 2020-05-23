@@ -75,6 +75,10 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
         updateHash(pg, (page: number) => {
           dispatch(setPage(page));
           smoothPageScroll(page);
+          helper.onChangeRangeHandler({
+            start: page,
+            end: page + 1,
+          });
         });
         resolve(pg);
       } catch (err) {
@@ -182,6 +186,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
             dispatch={dispatch}
             onClickPlayToggle={helper.onClickPlayToggle}
             settings={settings}
+            onChangeRangeHandler={helper.onChangeRangeHandler}
           />
         ))}
       </Container>

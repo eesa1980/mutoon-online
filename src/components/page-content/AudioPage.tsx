@@ -25,6 +25,7 @@ interface AudioPageProps extends PageProps {
   dispatch: Dispatch<any>;
   onClickPlayToggle: any;
   activeBook: ActiveBook;
+  onChangeRangeHandler: any;
 }
 
 const HashMarker = styled.span`
@@ -49,6 +50,7 @@ const AudioPage: React.FC<AudioPageProps> = ({
   dispatch,
   onClickPlayToggle,
   activeBook,
+  onChangeRangeHandler,
 }) => {
   const Wrapper = getWrapper(page_number);
 
@@ -69,7 +71,13 @@ const AudioPage: React.FC<AudioPageProps> = ({
         onClick={(e: any) => {
           e.preventDefault();
           if (page_number > 0 && page_number !== audioState.page) {
-            updateHash(page_number, () => dispatch(setPage(page_number)));
+            updateHash(page_number, () => {
+              dispatch(setPage(page_number));
+              onChangeRangeHandler({
+                start: page_number,
+                end: page_number + 1,
+              });
+            });
 
             if (activeBook.status !== Status.STOPPED) {
               dispatch(setStatus(Status.STOPPED));
