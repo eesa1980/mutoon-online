@@ -1,10 +1,14 @@
-import { Container, Typography } from "@material-ui/core";
+import { Container, MenuItem, Select, Typography } from "@material-ui/core";
+import { ThemeOptions } from "@material-ui/core/styles";
+import withTheme from "@material-ui/core/styles/withTheme";
 import LibraryBooksIcon from "@material-ui/icons/LibraryBooks";
 import { graphql, useStaticQuery } from "gatsby";
 import * as React from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
 import BottomNav from "../components/BottomNav";
+import DialogComponent from "../components/Dialog";
 import AudioPage from "../components/page-content/AudioPage";
 import { LoadingStatus, Status } from "../enum";
 import { useAudioHelper } from "../hooks/useAudioHelper";
@@ -23,6 +27,20 @@ export const INITIAL_AUDIO_STATE = {
   loadingStatus: LoadingStatus.INACTIVE,
 };
 
+const FormWrapper = withTheme(styled.div`
+  display: inline-flex;
+  align-items: center;
+
+  > * {
+    margin-right: ${({ theme }: { theme: ThemeOptions | any }) =>
+      theme.spacing(1)}px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+`);
+
 interface IBookTemplate {
   pageContext: BookNode;
   allAudio: AllAudio;
@@ -32,6 +50,7 @@ interface IBookTemplate {
 const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
   const audioPlayer = useRef<HTMLAudioElement>(null);
   const dispatch = useDispatch();
+  const [openModal, setOpenModal] = useState<number>(0);
 
   const { allAudio } = useStaticQuery(query);
 
@@ -109,6 +128,37 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
     settings,
   });
 
+  const onChangeStartHandler = (e: any) => {
+    const { value } = e.target;
+
+    if (activeBook.status !== Status.STOPPED) {
+      dispatch(setStatus(Status.STOPPED));
+    }
+
+    updateHash(value, (page: number) => {
+      smoothPageScroll(page);
+      helper.onChangeRangeHandler({
+        start: page,
+        end: page + 1,
+      });
+
+      dispatch(setPage(page));
+    });
+  };
+
+  const onChangeEndHandler = (e: any) => {
+    const { value } = e.target;
+
+    helper.onChangeRangeHandler({
+      start: helper.range.start,
+      end: value,
+    });
+  };
+
+  const arrayKeys = [...new Array(pageContext.content.length).keys()].filter(
+    (item) => item
+  );
+
   return (
     <DefaultLayout title={pageContext.title}>
       <FloatingTitle>
@@ -121,23 +171,67 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
       <audio src={audio.src.publicURL} preload={"auto"} ref={audioPlayer} />
 
       <Container maxWidth="sm">
-        {pageContext?.content.map((con, i) => {
-          return (
-            <AudioPage
-              key={i}
-              page_number={i}
-              content={con}
-              title={pageContext.title}
-              audioState={audioState}
-              activeBook={activeBook}
-              dispatch={dispatch}
-              onClickPlayToggle={helper.onClickPlayToggle}
-              settings={settings}
-            />
-          );
-        })}
+        {pageContext?.content.map((con, i) => (
+          <AudioPage
+            key={i}
+            page_number={i}
+            content={con}
+            title={pageContext.title}
+            audioState={audioState}
+            activeBook={activeBook}
+            dispatch={dispatch}
+            onClickPlayToggle={helper.onClickPlayToggle}
+            settings={settings}
+          />
+        ))}
       </Container>
+
+      <DialogComponent
+        title="Select a range"
+        openModal={openModal}
+        confirmText={"Play"}
+        cancelText={"Close"}
+        onClickConfirmHandler={helper.onClickPlayToggle}
+      >
+        <FormWrapper onChange={(e: any) => e.preventDefault()}>
+          <Typography component="label">From</Typography>
+          <Select
+            variant={"outlined"}
+            id={"range-start"}
+            fullWidth
+            value={helper.range.start}
+            onChange={onChangeStartHandler}
+          >
+            {arrayKeys
+              .filter((item) => item !== arrayKeys.length)
+              .map((item, i) => (
+                <MenuItem key={`range-start-${i}`} value={item}>
+                  page {item}
+                </MenuItem>
+              ))}
+          </Select>
+          <Typography component="label">to</Typography>
+          <Select
+            variant={"outlined"}
+            id={"range-end"}
+            value={helper.range.end}
+            fullWidth
+            onChange={onChangeEndHandler}
+          >
+            {arrayKeys.map((item, i) => (
+              <MenuItem
+                key={`range-end-${i}`}
+                value={item}
+                disabled={item <= helper.range.start}
+              >
+                page {item}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormWrapper>
+      </DialogComponent>
       <BottomNav
+        onClickOpenModalHandler={() => setOpenModal(openModal + 1)}
         onClickPlayHandler={helper.onClickPlayToggle}
         onClickLoopHandler={helper.onClickLoopToggle}
         activeBook={activeBook}

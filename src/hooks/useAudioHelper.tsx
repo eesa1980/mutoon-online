@@ -1,5 +1,5 @@
 import throttle from "lodash-es/throttle";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { LoadingStatus, PlayType, Status } from "../enum";
 import { ActiveBook, Settings, State } from "../model/state";
@@ -20,6 +20,11 @@ interface PropTypes {
   settings: Settings;
 }
 
+export interface Range {
+  start: number;
+  end: number;
+}
+
 export const useAudioHelper = ({
   audioPlayer,
   audioState,
@@ -28,6 +33,11 @@ export const useAudioHelper = ({
   settings,
 }: PropTypes) => {
   const dispatch = useDispatch();
+  const [range, setRange] = useState<Range>({
+    start: audioState.page,
+    end: audioState.page + 1,
+  });
+
   let start: number;
   let duration: number;
 
@@ -78,6 +88,10 @@ export const useAudioHelper = ({
     }
   };
 
+  const onChangeRangeHandler = (args: Range) => {
+    setRange(args);
+  };
+
   useEffect(() => void toggleAudio(), [activeBook.status]);
 
   /**
@@ -113,6 +127,10 @@ export const useAudioHelper = ({
         break;
 
       case PlayType.CONTINUOUS:
+        dispatch(setPlayType(PlayType.RANGE));
+        break;
+
+      case PlayType.RANGE:
         dispatch(setPlayType(PlayType.PLAY_ONCE));
         break;
 
@@ -121,12 +139,19 @@ export const useAudioHelper = ({
     }
   };
 
+  const scrollToPage = (page: number) => {
+    smoothPageScroll(page);
+    dispatch(setPage(page));
+  };
+
   /**
    * Polls audio to select correct page
    */
   const onProgressAudio = throttle((currentTime: number) => {
     const isReadyToPlay =
-      currentTime * 1000 > start && activeBook.status === Status.PLAYING;
+      currentTime * 1000 > start &&
+      activeBook.status === Status.PLAYING &&
+      audioState.loadingStatus !== LoadingStatus.READY;
 
     if (isReadyToPlay) {
       dispatch(setLoadingStatus(LoadingStatus.READY));
@@ -151,13 +176,20 @@ export const useAudioHelper = ({
 
         case PlayType.CONTINUOUS:
           if (audioState.page < Object.keys(offsets).length) {
-            return updateHash(audioState.page + 1, (page: number) => {
-              smoothPageScroll(page);
-              dispatch(setPage(page));
-            });
+            return updateHash(audioState.page + 1, scrollToPage);
           }
 
           return dispatch(setStatus(Status.STOPPED));
+
+        case PlayType.RANGE:
+          if (audioState.page >= range.end) {
+            // Reset range
+            const [rSt] = offsets[`part-${range.start}`];
+            audioPlayer.currentTime = rSt / 1000;
+            return updateHash(range.start, scrollToPage);
+          }
+
+          return updateHash(audioState.page + 1, scrollToPage);
 
         default:
           break;
@@ -179,5 +211,7 @@ export const useAudioHelper = ({
   return {
     onClickPlayToggle,
     onClickLoopToggle,
+    onChangeRangeHandler,
+    range,
   };
 };
