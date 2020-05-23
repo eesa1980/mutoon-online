@@ -39,18 +39,24 @@ export const useAudioHelper = ({
     end: cloneDeep(audioState.page) + 1,
   });
 
-  let start: number;
-  let duration: number;
+  const [start, setStart] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(0);
 
-  try {
-    if (isNaN(audioState.page) || audioState.page < 1) {
-      throw Error;
+  useEffect(() => {
+    try {
+      if (isNaN(audioState.page) || audioState.page < 1) {
+        throw Error;
+      }
+
+      const [st, dur] = offsets[`part-${audioState.page}`];
+      setStart(st);
+      setDuration(dur);
+    } catch (err) {
+      const [st, dur] = offsets[`part-1`];
+      setStart(st);
+      setDuration(dur);
     }
-
-    [start, duration] = offsets[`part-${audioState.page}`];
-  } catch (err) {
-    [start, duration] = offsets[`part-1`];
-  }
+  }, [audioState.page, offsets]);
 
   const playAudio = async () => {
     if (audioPlayer === null) {
