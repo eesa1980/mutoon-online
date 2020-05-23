@@ -39,34 +39,24 @@ export const useAudioHelper = ({
     end: cloneDeep(audioState.page) + 1,
   });
 
-  const [[start, duration], setOffset] = useState<any>(offsets[`part-1`]);
+  let start: number;
+  let duration: number;
 
-  const updateOffset = (key: string) => {
-    if (audioPlayer) {
-      const [st, dur] = offsets[key];
-      audioPlayer.currentTime = st / 1000;
-      setOffset([st, dur]);
-    }
-  };
-
-  useEffect(() => {
-    if (activeBook.status === Status.PLAYING) {
-      smoothPageScroll(audioState.page);
-    }
-
-    try {
-      updateOffset(`part-${audioState.page}`);
-    } catch (err) {
-      updateOffset(`part-1`);
-    }
-  }, [audioState.page, audioPlayer?.src]);
+  try {
+    [start, duration] = offsets[`part-${audioState.page}`];
+  } catch (err) {
+    [start, duration] = offsets[`part-1`];
+  }
 
   const playAudio = async () => {
     if (audioPlayer === null) {
       return;
     }
 
-    smoothPageScroll(audioState.page);
+    if (activeBook.status !== Status.PAUSED) {
+      audioPlayer.currentTime = start / 1000;
+      smoothPageScroll(audioState.page);
+    }
 
     await audioPlayer.play();
   };
@@ -150,10 +140,10 @@ export const useAudioHelper = ({
     }
   };
 
-  // const scrollToPage = (page: number) => {
-  //   smoothPageScroll(page);
-  //   dispatch(setPage(page));
-  // };
+  const scrollToPage = (page: number) => {
+    smoothPageScroll(page);
+    dispatch(setPage(page));
+  };
 
   /**
    * Polls audio to select correct page
@@ -187,9 +177,7 @@ export const useAudioHelper = ({
 
         case PlayType.CONTINUOUS:
           if (audioState.page < Object.keys(offsets).length) {
-            return updateHash(audioState.page + 1, (page: number) =>
-              dispatch(setPage(page))
-            );
+            return updateHash(audioState.page + 1, scrollToPage);
           }
 
           return dispatch(setStatus(Status.STOPPED));
@@ -199,14 +187,10 @@ export const useAudioHelper = ({
             // Reset range
             const [rSt] = offsets[`part-${range.start}`];
             audioPlayer.currentTime = rSt / 1000;
-            return updateHash(range.start, (page: number) =>
-              dispatch(setPage(page))
-            );
+            return updateHash(range.start, scrollToPage);
           }
 
-          return updateHash(audioState.page + 1, (page: number) =>
-            dispatch(setPage(page))
-          );
+          return updateHash(audioState.page + 1, scrollToPage);
 
         default:
           break;
@@ -224,7 +208,7 @@ export const useAudioHelper = ({
       stopAudio();
     };
 
-    audioPlayer.oncanplay = () => {
+    audioPlayer.onloadedmetadata = () => {
       audioPlayer.currentTime = start;
     };
   }
