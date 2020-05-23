@@ -88,7 +88,6 @@ export const useAudioHelper = ({
       case Status.INACTIVE:
       case Status.STOPPED:
       case Status.PAUSED:
-        dispatch(setLoadingStatus(LoadingStatus.LOADING));
         await playAudio();
         return dispatch(setStatus(Status.PLAYING));
       case Status.PLAYING:
@@ -174,12 +173,6 @@ export const useAudioHelper = ({
 
     audioPlayer.onended = () => {
       stopAudio();
-    };
-
-    audioPlayer.onplaying = () => {
-      if (audioPlayer?.currentTime > start) {
-        dispatch(setLoadingStatus(LoadingStatus.READY));
-      }
     };
   }
 

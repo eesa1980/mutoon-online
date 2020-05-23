@@ -54,7 +54,8 @@ const AudioPage: React.FC<AudioPageProps> = ({
 
   const shouldShowSpinner =
     audioState.loadingStatus === LoadingStatus.LOADING &&
-    page_number === audioState.page;
+    page_number === audioState.page &&
+    activeBook.status === Status.PLAYING;
 
   return (
     <Wrapper
@@ -68,7 +69,8 @@ const AudioPage: React.FC<AudioPageProps> = ({
         onClick={(e: any) => {
           e.preventDefault();
           if (page_number > 0 && page_number !== audioState.page) {
-            updateHash(page_number, (page: number) => dispatch(setPage(page)));
+            updateHash(page_number, () => dispatch(setPage(page_number)));
+
             if (activeBook.status !== Status.STOPPED) {
               dispatch(setStatus(Status.STOPPED));
             }

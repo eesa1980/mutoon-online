@@ -50,7 +50,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
 
   const settings: Settings = useSelector((state: State) => state.settings);
 
-  const initCurrentPage = (pg: number) =>
+  const setCurrentPage = (pg: number) =>
     new Promise((resolve) => {
       try {
         updateHash(pg, (page: number) => {
@@ -71,18 +71,19 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
 
     dispatch(setActiveBook(pageContext));
     dispatch(setStatus(Status.STOPPED));
+    dispatch(setLoadingStatus(LoadingStatus.LOADING));
 
     if (audioPlayer.current) {
       setTimeout(async () => {
-        if (await initCurrentPage(hashPage)) {
+        if (await setCurrentPage(hashPage)) {
           return;
         }
 
-        if (await initCurrentPage(audioState.page)) {
+        if (await setCurrentPage(audioState.page)) {
           return;
         }
 
-        await initCurrentPage(1);
+        await setCurrentPage(1);
       }, 1000);
     }
   };
