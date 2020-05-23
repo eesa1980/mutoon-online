@@ -97,17 +97,7 @@ module.exports = {
         theme_color_in_head: false, // This will avoid adding theme-color meta tag.
       },
     },
-    {
-      resolve: `gatsby-plugin-offline`,
-      options: {
-        precachePages: [`/`, `/*`],
-        options: {
-          workboxConfig: {
-            globPatterns: ["**/*"],
-          },
-        },
-      },
-    },
+
     // Add typescript stack into webpack
     `gatsby-plugin-typescript`,
   ],
