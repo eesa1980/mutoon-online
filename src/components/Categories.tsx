@@ -1,4 +1,10 @@
-import { ButtonBase, Typography, withTheme } from "@material-ui/core";
+import {
+  ButtonBase,
+  MenuItem,
+  Select,
+  Typography,
+  withTheme,
+} from "@material-ui/core";
 import { navigate } from "gatsby";
 import Img from "gatsby-image";
 import startCase from "lodash-es/startCase";
@@ -8,7 +14,6 @@ import styled from "styled-components";
 import { AllCategory, CategoryNode } from "../model/category";
 import NotFoundPage from "../pages/404";
 import Hr from "../styled/Hr";
-import Select, { SelectOption } from "./../components/Select";
 
 interface CategoriesProps {
   data: {
@@ -92,7 +97,7 @@ const Categories: React.FC<CategoriesProps> = ({ data }) => {
     return <NotFoundPage />;
   }
 
-  const categories: SelectOption[] = React.useMemo(() => {
+  const categories = React.useMemo(() => {
     const dropdowns = allCategory.nodes
       ?.filter(
         (node: CategoryNode) => node.slug !== "unassigned" && !node.parent_id
@@ -124,8 +129,8 @@ const Categories: React.FC<CategoriesProps> = ({ data }) => {
     [category]
   );
 
-  const handleChange = (value: string) => {
-    setCategory(value);
+  const handleChange = (e: React.ChangeEvent<{ value: unknown }>) => {
+    setCategory(e.target.value as string);
   };
 
   return (
@@ -134,15 +139,19 @@ const Categories: React.FC<CategoriesProps> = ({ data }) => {
         <Typography color="textSecondary" component={"span"}>
           Categories:
         </Typography>
+
         <Select
-          selectProps={{
-            variant: "outlined",
-          }}
+          variant={"outlined"}
           defaultValue={"all"}
           id={"categories"}
-          values={categories}
-          handleChange={handleChange}
-        />
+          onChange={handleChange}
+        >
+          {categories.map((item, i: number) => (
+            <MenuItem key={i} value={item.value}>
+              {startCase(item.text)}
+            </MenuItem>
+          ))}
+        </Select>
       </Wrapper>
 
       <Buttons>
