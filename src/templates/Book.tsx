@@ -69,16 +69,26 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
 
   const settings: Settings = useSelector((state: State) => state.settings);
 
-  const setCurrentPage = (pg: number) =>
+  const setCurrentPage = (pg: number, isHash?: boolean) =>
     new Promise((resolve) => {
       try {
-        updateHash(pg, (page: number) => {
-          dispatch(setPage(page));
+        if (isHash) {
+          dispatch(setPage(pg));
           helper.onChangeRangeHandler({
-            start: page,
-            end: page + 1,
+            start: pg,
+            end: pg + 1,
           });
-        });
+        } else {
+          updateHash(pg, (page: number) => {
+            dispatch(setPage(page));
+            helper.onChangeRangeHandler({
+              start: page,
+              end: page + 1,
+            });
+          });
+        }
+
+        smoothPageScroll(pg);
         resolve(pg);
       } catch (err) {
         resolve(undefined);
@@ -100,18 +110,15 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
 
     if (audioPlayer.current) {
       setTimeout(async () => {
-        if (await setCurrentPage(hashPage)) {
-          smoothPageScroll(hashPage);
+        if (await setCurrentPage(hashPage, true)) {
           return;
         }
 
         if (await setCurrentPage(audioState.page)) {
-          smoothPageScroll(audioState.page);
           return;
         }
 
         await setCurrentPage(1);
-        smoothPageScroll(1);
       }, 1000);
     }
   };
