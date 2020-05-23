@@ -16,20 +16,6 @@ const Wrapper = styled.div`
 const Spinner: React.FC<{ fullscreen?: boolean }> = ({
   fullscreen = false,
 }) => {
-  const [show, set] = React.useState(false);
-
-  React.useEffect(() => {
-    const to = setTimeout(() => set(true), 500);
-
-    return () => {
-      clearTimeout(to);
-    };
-  }, []);
-
-  if (!show) {
-    return <></>;
-  }
-
   return (
     <Fullscreen data-fullscreen={fullscreen}>
       <Wrapper>

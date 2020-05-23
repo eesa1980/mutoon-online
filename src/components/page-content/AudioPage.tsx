@@ -55,7 +55,7 @@ const AudioPage: React.FC<AudioPageProps> = ({
   const Wrapper = getWrapper(page_number);
 
   const shouldShowSpinner =
-    audioState.loadingStatus === LoadingStatus.LOADING &&
+    audioState.loadingStatus !== LoadingStatus.READY &&
     page_number === audioState.page &&
     activeBook.status === Status.PLAYING;
 
