@@ -43,9 +43,12 @@ export const useAudioHelper = ({
   let duration: number;
 
   try {
-    [start, duration] = offsets[`part-${audioState.page || 1}`];
+    if (isNaN(audioState.page) || audioState.page < 1) {
+      throw Error;
+    }
+
+    [start, duration] = offsets[`part-${audioState.page}`];
   } catch (err) {
-    console.log("err :>> ", err);
     [start, duration] = offsets[`part-1`];
   }
 
