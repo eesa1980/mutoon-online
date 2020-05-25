@@ -1,4 +1,5 @@
 import { Button, ButtonBase, ButtonGroup } from "@material-ui/core";
+import teal from "@material-ui/core/colors/teal";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import StopIcon from "@material-ui/icons/Stop";
 import * as React from "react";
@@ -15,7 +16,7 @@ import Spinner from "../Spinner";
 import { PageProps } from "./Page";
 import PageNumber from "./PageNumber";
 import PageText from "./PageText";
-
+ 
 interface AudioPageProps extends PageProps {
   title: string;
   page_number: number;
@@ -37,6 +38,10 @@ const ButtonBaseStyled: any = styled(ButtonBase)`
   position: static;
   display: block;
   width: 100%;
+
+  * a {
+    color: ${teal[500]};
+  }
 `;
 
 const getWrapper = (index: number) =>
@@ -62,7 +67,6 @@ const AudioPage: React.FC<AudioPageProps> = ({
   return (
     <Wrapper
       elevation={page_number > 1 ? 3 : 0}
-      disabled={page_number === audioState.page}
       style={{
         opacity: page_number === audioState.page ? 1 : page_number > 0 && 0.5,
       }}
@@ -84,8 +88,7 @@ const AudioPage: React.FC<AudioPageProps> = ({
             }
           }
         }}
-        disabled={page_number < 1}
-        disableRipple={page_number === audioState.page}
+        disableRipple={page_number === audioState.page || page_number < 1}
         component={"div"}
       >
         <HashMarker id={`page-${page_number}`} />
