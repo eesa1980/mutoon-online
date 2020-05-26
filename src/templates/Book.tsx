@@ -88,12 +88,12 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
           // If valid hash exists
           if (!isNaN(hashPage) && hashPage < pageContext.content.length) {
             dispatch(setPage(hashPage));
+            smoothPageScroll(hashPage);
+
             helper.onChangeRangeHandler({
               start: hashPage,
-              end: hashPage + 1,
+              end: helper.range.end,
             });
-
-            smoothPageScroll(hashPage);
 
             return;
           }
@@ -106,7 +106,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
             updateHash(audioState.page, (page: number) => {
               helper.onChangeRangeHandler({
                 start: page,
-                end: page + 1,
+                end: helper.range.end,
               });
 
               smoothPageScroll(page);
@@ -121,7 +121,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
             dispatch(setPage(page));
             helper.onChangeRangeHandler({
               start: page,
-              end: page + 1,
+              end: helper.range.end,
             });
             smoothPageScroll(page);
           });
@@ -206,6 +206,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
             onClickPlayToggle={helper.onClickPlayToggle}
             settings={settings}
             onChangeRangeHandler={helper.onChangeRangeHandler}
+            range={helper.range}
           />
         ))}
       </Container>
@@ -226,13 +227,11 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
             value={helper.range.start}
             onChange={onChangeStartHandler}
           >
-            {arrayKeys
-              .filter((item) => item !== arrayKeys.length)
-              .map((item, i) => (
-                <MenuItem key={`range-start-${i}`} value={item}>
-                  page {item}
-                </MenuItem>
-              ))}
+            {arrayKeys.map((item, i) => (
+              <MenuItem key={`range-start-${i}`} value={item}>
+                page {item}
+              </MenuItem>
+            ))}
           </Select>
           <Typography component="label">to</Typography>
           <Select
@@ -246,7 +245,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
               <MenuItem
                 key={`range-end-${i}`}
                 value={item}
-                disabled={item <= helper.range.start}
+                disabled={item < helper.range.start}
               >
                 page {item}
               </MenuItem>

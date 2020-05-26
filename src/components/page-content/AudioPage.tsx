@@ -6,6 +6,7 @@ import * as React from "react";
 import { Dispatch } from "redux";
 import styled from "styled-components";
 import { LoadingStatus, Status } from "../../enum";
+import { Range } from "../../hooks/useAudioHelper";
 import { Content } from "../../model/book";
 import { ActiveBook, AudioState, Settings } from "../../model/state";
 import { setStatus } from "../../redux/actions/activeBookActions";
@@ -16,7 +17,7 @@ import Spinner from "../Spinner";
 import { PageProps } from "./Page";
 import PageNumber from "./PageNumber";
 import PageText from "./PageText";
- 
+
 interface AudioPageProps extends PageProps {
   title: string;
   page_number: number;
@@ -27,6 +28,7 @@ interface AudioPageProps extends PageProps {
   onClickPlayToggle: any;
   activeBook: ActiveBook;
   onChangeRangeHandler: any;
+  range: Range;
 }
 
 const HashMarker = styled.span`
@@ -56,6 +58,7 @@ const AudioPage: React.FC<AudioPageProps> = ({
   onClickPlayToggle,
   activeBook,
   onChangeRangeHandler,
+  range,
 }) => {
   const Wrapper = getWrapper(page_number);
 
@@ -79,7 +82,7 @@ const AudioPage: React.FC<AudioPageProps> = ({
               dispatch(setPage(page_number));
               onChangeRangeHandler({
                 start: page_number,
-                end: page_number + 1,
+                end: range.end < page_number ? page_number : range.end,
               });
             });
 

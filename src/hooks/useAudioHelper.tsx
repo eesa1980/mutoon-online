@@ -1,4 +1,3 @@
-import { cloneDeep } from "lodash-es";
 import throttle from "lodash-es/throttle";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -35,8 +34,8 @@ export const useAudioHelper = ({
 }: PropTypes) => {
   const dispatch = useDispatch();
   const [range, setRange] = useState<Range>({
-    start: cloneDeep(audioState.page),
-    end: cloneDeep(audioState.page) + 1,
+    start: 1,
+    end: Object.keys(offsets).length,
   });
 
   let start: number;
@@ -162,7 +161,11 @@ export const useAudioHelper = ({
       audioPlayer.currentTime = start / 1000;
     };
 
-    const reachedEnd = currentTime * 1000 >= start + duration;
+    const isLastPage = audioState.page >= Object.keys(offsets).length;
+
+    // Takes away 1/2 second off end to ensure audio doesn't stop if on last page
+    const reachedEnd =
+      currentTime >= (start + duration - ((isLastPage && 500) || 0)) / 1000;
 
     if (activeBook.status === Status.PLAYING && reachedEnd) {
       switch (settings.playType) {
@@ -183,6 +186,11 @@ export const useAudioHelper = ({
           return dispatch(setStatus(Status.STOPPED));
 
         case PlayType.RANGE:
+          if (range.start === range.end) {
+            resetTime();
+            return;
+          }
+
           if (audioState.page >= range.end) {
             // Reset range
             const [rSt] = offsets[`part-${range.start}`];
