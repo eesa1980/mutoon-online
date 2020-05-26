@@ -198,6 +198,12 @@ export const useAudioHelper = ({
     }
   }, 100);
 
+  useEffect(() => {
+    if (!!audioPlayer) {
+      audioPlayer.currentTime = start;
+    }
+  }, [!!audioPlayer]);
+
   // Listeners
   if (typeof window !== "undefined" && audioPlayer !== null) {
     audioPlayer.ontimeupdate = () => {
@@ -208,9 +214,13 @@ export const useAudioHelper = ({
       stopAudio();
     };
 
-    audioPlayer.onloadedmetadata = () => {
+    audioPlayer.onloadstart = () => {
       audioPlayer.currentTime = start;
     };
+
+    // audioPlayer.onloadedmetadata = () => {
+    //   audioPlayer.currentTime = start;
+    // };
   }
 
   return {
