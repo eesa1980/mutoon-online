@@ -192,7 +192,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
       </FloatingTitle>
 
       <audio
-        // crossOrigin="anonymous"
+        crossOrigin={"anonymous"}
         src={audio.src.publicURL}
         preload={"auto"}
         ref={audioPlayer}
