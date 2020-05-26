@@ -191,7 +191,12 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
         </Typography>
       </FloatingTitle>
 
-      <audio src={audio.src.publicURL} preload={"auto"} ref={audioPlayer} />
+      <audio
+        // crossOrigin="anonymous"
+        src={audio.src.publicURL}
+        preload={"auto"}
+        ref={audioPlayer}
+      />
 
       <Container maxWidth="sm">
         {pageContext?.content.map((con, i) => (

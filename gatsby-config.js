@@ -100,6 +100,7 @@ module.exports = {
     {
       resolve: `gatsby-plugin-offline`,
       options: {
+        appendScript: require.resolve(`./src/sw-range-request-handler.js`),
         precachePages: [`/`, `/*`],
         options: {
           workboxConfig: {
