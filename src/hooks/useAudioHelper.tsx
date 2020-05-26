@@ -53,12 +53,12 @@ export const useAudioHelper = ({
       return;
     }
 
+    await audioPlayer.play();
+
     if (activeBook.status !== Status.PAUSED) {
       audioPlayer.currentTime = start / 1000;
       smoothPageScroll(audioState.page);
     }
-
-    await audioPlayer.play();
   };
 
   const pauseAudio = () => {
@@ -198,12 +198,6 @@ export const useAudioHelper = ({
     }
   }, 100);
 
-  useEffect(() => {
-    if (!!audioPlayer) {
-      audioPlayer.currentTime = start;
-    }
-  }, [!!audioPlayer]);
-
   // Listeners
   if (typeof window !== "undefined" && audioPlayer !== null) {
     audioPlayer.ontimeupdate = () => {
@@ -214,13 +208,9 @@ export const useAudioHelper = ({
       stopAudio();
     };
 
-    audioPlayer.onloadstart = () => {
+    audioPlayer.onloadedmetadata = () => {
       audioPlayer.currentTime = start;
     };
-
-    // audioPlayer.onloadedmetadata = () => {
-    //   audioPlayer.currentTime = start;
-    // };
   }
 
   return {
