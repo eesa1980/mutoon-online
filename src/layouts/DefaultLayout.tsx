@@ -22,13 +22,6 @@ import { compose } from "../util/compose";
 import { stripTashkeel } from "../util/stringModifiers";
 import "./index.css";
 
-declare global {
-  interface Window {
-    // TODO: replace this with a more specific type based on usage
-    dataLayer: any[];
-  }
-}
-
 interface ILocation {
   pathname: string;
   title: string;

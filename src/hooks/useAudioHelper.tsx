@@ -119,15 +119,15 @@ export const useAudioHelper = ({
 
     switch (settings.playType) {
       case PlayType.PLAY_ONCE:
-        dispatch(setPlayType(PlayType.LOOPING));
+        dispatch(setPlayType(PlayType.RANGE));
         break;
 
       case PlayType.LOOPING:
-        dispatch(setPlayType(PlayType.CONTINUOUS));
+        dispatch(setPlayType(PlayType.PLAY_ONCE));
         break;
 
       case PlayType.CONTINUOUS:
-        dispatch(setPlayType(PlayType.RANGE));
+        dispatch(setPlayType(PlayType.PLAY_ONCE));
         break;
 
       case PlayType.RANGE:
@@ -168,41 +168,24 @@ export const useAudioHelper = ({
       currentTime >= (start + duration - ((isLastPage && 500) || 0)) / 1000;
 
     if (activeBook.status === Status.PLAYING && reachedEnd) {
-      switch (settings.playType) {
-        case PlayType.PLAY_ONCE:
-          dispatch(setStatus(Status.STOPPED));
-          resetTime();
-          return;
-
-        case PlayType.LOOPING:
-          resetTime();
-          return;
-
-        case PlayType.CONTINUOUS:
-          if (audioState.page < Object.keys(offsets).length) {
-            return updateHash(audioState.page + 1, scrollToPage);
-          }
-
-          return dispatch(setStatus(Status.STOPPED));
-
-        case PlayType.RANGE:
-          if (range.start === range.end) {
-            resetTime();
-            return;
-          }
-
-          if (audioState.page >= range.end) {
-            // Reset range
-            const [rSt] = offsets[`part-${range.start}`];
-            audioPlayer.currentTime = rSt / 1000;
-            return updateHash(range.start, scrollToPage);
-          }
-
-          return updateHash(audioState.page + 1, scrollToPage);
-
-        default:
-          break;
+      if (range.start === range.end) {
+        resetTime();
+        return;
       }
+
+      if (audioState.page >= range.end) {
+        // Reset range
+        const [rSt] = offsets[`part-${range.start}`];
+        audioPlayer.currentTime = rSt / 1000;
+
+        if (PlayType.PLAY_ONCE) {
+          dispatch(setStatus(Status.STOPPED));
+        }
+
+        return updateHash(range.start, scrollToPage);
+      }
+
+      return updateHash(audioState.page + 1, scrollToPage);
     }
   }, 100);
 
@@ -222,9 +205,10 @@ export const useAudioHelper = ({
   }
 
   return {
-    onClickPlayToggle,
-    onClickLoopToggle,
     onChangeRangeHandler,
+    onClickLoopToggle,
+    onClickPlayToggle,
     range,
+    scrollToPage,
   };
 };

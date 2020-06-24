@@ -217,7 +217,7 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
       </Container>
 
       <DialogComponent
-        title="Select a range"
+        title="Range"
         openModal={openModal}
         confirmText={"Play"}
         cancelText={"Close"}
@@ -259,7 +259,10 @@ const BookTemplate: React.FC<IBookTemplate> = ({ pageContext }) => {
         </FormWrapper>
       </DialogComponent>
       <BottomNav
-        onClickOpenModalHandler={() => setOpenModal(openModal + 1)}
+        onClickOpenModalHandler={() => {
+          setOpenModal(openModal + 1);
+          helper.scrollToPage(helper.range.start);
+        }}
         onClickPlayHandler={helper.onClickPlayToggle}
         onClickLoopHandler={helper.onClickLoopToggle}
         activeBook={activeBook}
